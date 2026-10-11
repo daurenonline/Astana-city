@@ -254,6 +254,77 @@
       background: #eef7f8 !important;
       border-left: 3px solid var(--teal);
     }
+    /* Timeline / Audit feed */
+    .timeline {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 420px;
+      overflow-y: auto;
+      position: relative;
+    }
+    .timeline li {
+      position: relative;
+      padding: 9px 8px 9px 34px;
+      border-bottom: 1px solid #eef1f4;
+      font-size: 12px;
+    }
+    .timeline li:last-child { border-bottom: none; }
+    .timeline .tl-icon {
+      position: absolute;
+      left: 6px;
+      top: 10px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      background: #eef2f6;
+    }
+    .timeline .tl-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+    .timeline .tl-title { font-weight: 700; color: var(--navy); }
+    .timeline .tl-time { color: var(--muted); font-size: 10.5px; white-space: nowrap; }
+    .timeline .tl-body { color: #4a5b6b; margin-top: 2px; }
+    .timeline .tl-meta { color: var(--muted); font-size: 10.5px; margin-top: 3px; }
+    .timeline .tl-object {
+      display: inline-block;
+      background: #eef7f8;
+      color: #0b5c60;
+      border-radius: 4px;
+      padding: 0 5px;
+      font-size: 10px;
+      margin-bottom: 2px;
+    }
+    .tl-type-deadline .tl-icon { background: #fbeae8; }
+    .tl-type-meeting .tl-icon { background: #e8f0fb; }
+    .tl-type-visit .tl-icon { background: #eaf8f0; }
+    .tl-type-contractor .tl-icon { background: #fff3cd; }
+    .tl-type-prescription .tl-icon { background: #fdecea; }
+    .tl-type-payment .tl-icon { background: #eaf7f0; }
+    .tl-type-complaint .tl-icon { background: #f3e8fb; }
+    .tl-type-status .tl-icon { background: #e8f4fb; }
+    .tl-type-photo .tl-icon { background: #eef1f4; }
+    .timeline-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 14px;
+      padding: 3px 9px;
+      font-size: 10.5px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .timeline-btn.active {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
     .evm-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -472,10 +543,16 @@
   <div class="bottom-grid">
     <section class="panel">
       <div class="panel-header">
-        <h2 class="panel-title">История и аудит переноса сроков</h2>
-        <span style="font-size:11px; color:var(--muted);">Неизменяемый Deadline Log</span>
+        <div>
+          <h2 class="panel-title">📜 История и полный аудит проекта</h2>
+          <span style="font-size:11px; color:var(--muted);" id="timelineSubtitle">Журнал событий выбранного объекта</span>
+        </div>
+        <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
+          <input type="checkbox" id="showAllTimeline" style="cursor:pointer;"> Все объекты
+        </label>
       </div>
-      <ul class="history-list" id="history"></ul>
+      <div class="timeline-filter" id="timelineFilters" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
+      <ul class="timeline" id="history"></ul>
     </section>
 
     <section class="panel" id="evmSection">
@@ -535,7 +612,7 @@
 
 <script>
 'use strict';
-const KEY = 'kontur-region-demo-v4';
+const KEY = 'kontur-region-demo-v5';
 const $ = id => document.getElementById(id);
 
 function localDate(d = new Date()) {
@@ -545,6 +622,12 @@ function offset(days) {
   const d = new Date();
   d.setDate(d.getDate() + days);
   return localDate(d);
+}
+function isoAgo(days, h = 10) {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  d.setHours(h, 15, 0, 0);
+  return d.toISOString();
 }
 function isLate(o, today = localDate()) {
   return o.status !== 'Завершён' && o.deadline < today;
@@ -762,7 +845,68 @@ function seed() {
         lng: 71.3850
       }
     ],
-    history: []
+    history: [],
+    events: [
+      // ===== Объект 1: Водопровод «Северный» =====
+      { objectId: 1, time: isoAgo(2, 15), type: 'visit', title: 'Выездная проверка технического надзора', who: 'Технадзор акимата (комиссия из 3 чел.)', place: 'ПК 12–ПК 34, ул. Северная', text: 'Осмотр траншеи и сварных стыков трубопровода. Выявлено отсутствие ограждения зоны разрытия (нарушение ППР). Составлен акт осмотра № ВП-117.' },
+      { objectId: 1, time: isoAgo(4, 11), type: 'contractor', title: 'Разбор с подрядчиком по графику поставки', who: 'Куратор А. Сапаров (Управление ТЭК)', place: 'Кабинет № 214, Управление ТЭК', text: 'Подрядчик «АстанаВводСервис» предупреждён о срыве поставки запорной арматуры. Затребован нагоночный график.' },
+      { objectId: 1, time: isoAgo(6, 16), type: 'meeting', title: 'Оперативный штаб по подготовке к отопительному сезону', who: 'Под руководством заместителя акима по ЖКХ', place: 'Зал совещаний акимата', text: 'Рассмотрен ход реконструкции водопровода. Срок сдвинут из-за сезонного подтопления траншеи.' },
+      { objectId: 1, time: isoAgo(8, 9), type: 'deadline', title: 'Перенос планового срока завершения', who: 'Куратор А. Сапаров', text: 'Срок изменён: 30.09 → 03.10. Причина: сезонное подтопление и удлинение переподключения абонентов (42 дома).' },
+      { objectId: 1, time: isoAgo(12, 14), type: 'complaint', title: 'Групповое обращение жителей (e-Otinish)', who: 'Портал e-Otinish № 77412', place: 'ул. Северная, 12/1', text: 'Поступило 3 жалобы на отсутствие ограждения и освещения зоны разрытия. Передано куратору на исполнение в 3 дня.' },
+      { objectId: 1, time: isoAgo(20, 10), type: 'payment', title: 'Оплата промежуточного акта выполненных работ', who: 'ГУ «Управление финансов»', text: 'Оплачено 240 млн ₸ за фактически выполненный объём по акту КС-2 (50% от договора).' },
+      { objectId: 1, time: isoAgo(35, 11), type: 'status', title: 'Перевод объекта в статус «В работе»', who: 'Куратор А. Сапаров', text: 'Начаты строительно-монтажные работы после передачи техники и восстановления ППР.' },
+
+      // ===== Объект 2: Школа на 1200 мест =====
+      { objectId: 2, time: isoAgo(1, 17), type: 'visit', title: 'Выездное совещание по готовности к вводу', who: 'Под руководством акима района', place: 'Стройплощадка, Есильский район', text: 'Проверка чистовой отделки и монтажа вентиляции. Отставание по вентиляционному оборудованию ~5%.' },
+      { objectId: 2, time: isoAgo(5, 12), type: 'contractor', title: 'Встреча с генподрядчиком «BI Global Stroy»', who: 'Руководитель Управления строительства', place: 'Управление строительства', text: 'Обсуждён график поставки вентустановок. Требование — ускорить чистовые работы на 2-м и 3-м этажах.' },
+      { objectId: 2, time: isoAgo(9, 15), type: 'photo', title: 'Фотофиксация прогресса СМР (ежемесячно)', who: 'Технадзор', text: 'Загружено 14 фотографий по фасадам и внутренним помещениям. Опубликовано в открытом паспорте объекта.' },
+      { objectId: 2, time: isoAgo(14, 10), type: 'meeting', title: 'Республиканский штаб по контролю за «Комфортными школами»', who: 'Под руководством вице-министра просвещения', place: 'ВКС (видеоконференция)', text: 'Сверка сроков ввода. Отмечена положительная динамика готовности (82%).' },
+      { objectId: 2, time: isoAgo(25, 11), type: 'payment', title: 'Оплата акта КС-2 за 3-й транш', who: 'Управление финансов', text: 'Оплачено 940 млн ₸ (33% от бюджета).' },
+
+      // ===== Объект 3: Освещение пр. Туран (завершён) =====
+      { objectId: 3, time: isoAgo(5, 16), type: 'status', title: 'Объект завершён и введён в эксплуатацию', who: 'Комиссия по приемке', place: 'пр. Туран', text: 'Подписан акт ввода № 23-АВ. Просрочка не учитывается, объект принят.' },
+      { objectId: 3, time: isoAgo(7, 11), type: 'visit', title: 'Итоговая приёмочная проверка освещённости', who: 'ГКП «Горсвет» + технадзор', place: 'пр. Туран, 12 светоточек', text: 'Замеры освещённости соответствуют СНиП. Замечаний нет.' },
+      { objectId: 3, time: isoAgo(18, 10), type: 'payment', title: 'Финальная оплата по договору', who: 'Управление финансов', text: 'Выплачен остаток 48 млн ₸ после сдачи объекта.' },
+
+      // ===== Объект 4: Поликлиника №4 =====
+      { objectId: 4, time: isoAgo(3, 13), type: 'prescription', title: 'Выдано предписание по корректировке сметы', who: 'Куратор Е. Мукашев (Горздрав)', place: 'Управление здравоохранения', text: 'Требуется корректировка сметы на медицинскую разводку газов (кислород, вакуум). Срок устранения — 10 дней.' },
+      { objectId: 4, time: isoAgo(6, 15), type: 'meeting', title: 'Совещание по организации приёма пациентов на период ремонта', who: 'Под руководством главврача поликлиники', place: 'Актовый зал поликлиники', text: 'Утверждён график перераспределения потоков пациентов между корпусами.' },
+      { objectId: 4, time: isoAgo(10, 12), type: 'complaint', title: 'Обращения пациентов', who: '4 обращения через e-Otinish', text: 'Жалобы на перенос приёма терапевтов в период ремонта. Дан ответ, график опубликован.' },
+      { objectId: 4, time: isoAgo(30, 11), type: 'status', title: 'Объект переведён в статус «Планирование»', who: 'Куратор Е. Мукашев', text: 'Ожидается заключение повторной госэкспертизы ПСД.' },
+
+      // ===== Объект 5: Набережная и парк =====
+      { objectId: 5, time: isoAgo(1, 16), type: 'contractor', title: 'Разбор с подрядчиком «Зеленстрой KZ»', who: 'Куратор К. Ахметов (Аппарат акима района)', place: 'Аппарат акима', text: 'Срок сдачи сегодня. Укладка брусчатки приостановлена из-за дождя. Обсуждается продление на 12 дней.' },
+      { objectId: 5, time: isoAgo(4, 10), type: 'visit', title: 'Выездная проверка благоустройства', who: 'Технадзор + представители маслихата', place: 'Набережная р. Есиль', text: 'Осмотрены сходы к воде и МАФ. Выявлен непроданный участок под скейт-зону.' },
+      { objectId: 5, time: isoAgo(8, 14), type: 'complaint', title: 'Обращения жителей по скейт-зоне', who: '6 обращений через e-Otinish', text: 'Горожане просят обустроить скейт-зону. Передано проектировщику на проработку.' },
+
+      // ===== Объект 6: Путепровод Коргалжын =====
+      { objectId: 6, time: isoAgo(2, 15), type: 'prescription', title: 'Выписано предписание за нарушения ПБ', who: 'Технадзор акимата', place: 'Путепровод, ул. Коргалжын', text: 'Выявлены нарушения по ограждению и сигнальным огням. Срок устранения — 5 дней. Иначе — штраф.' },
+      { objectId: 6, time: isoAgo(5, 11), type: 'contractor', title: 'Встреча по устранению отставания укладки ЩМА', who: 'Куратор Т. Ибраев (Управление автодорог)', place: 'Управление автодорог', text: 'Подрядчик «КазДорМост» подтвердил мобилизацию второй бригады с 15 числа.' },
+      { objectId: 6, time: isoAgo(11, 16), type: 'meeting', title: 'Штаб по транспортной ситуации из-за ремонта', who: 'Под руководством заместителя акима по транспорту', place: 'Акимат', text: 'Утверждена схема объезда и корректировка фаз светофоров.' },
+      { objectId: 6, time: isoAgo(20, 9), type: 'deadline', title: 'Перенос срока завершения', who: 'Куратор Т. Ибраев', text: 'Срок изменён на 15 дней позже. Причина: срыв субподрядчиком графика поставки ЩМА.' },
+      { objectId: 6, time: isoAgo(24, 12), type: 'complaint', title: 'Массовые жалобы на пробки', who: '12 обращений через e-Otinish + соцсети', text: 'Жалобы на заторы на объездной трассе в часы пик. Направлено в Управление транспорта.' },
+
+      // ===== Объект 7: Развязка Тәуелсіздік/Қалдаяқова =====
+      { objectId: 7, time: isoAgo(3, 14), type: 'visit', title: 'Выездная проверка перекладки сетей', who: 'Под руководством акима города', place: 'пр. Тәуелсіздік', text: 'Проверен ход выноса теплотрассы и высоковольтных кабелей. Работы идут по графику.' },
+      { objectId: 7, time: isoAgo(7, 11), type: 'meeting', title: 'Технический совет по этапности строительства', who: 'Под руководством главного инженера проекта', place: 'Проектный офис', text: 'Утверждена этапность строительства и схема временного движения.' },
+      { objectId: 7, time: isoAgo(10, 15), type: 'photo', title: 'Аэрофотосъёмка (дрон) хода работ', who: 'Технадзор', place: 'Развязка', text: 'Загружены ортофотопланы за месяц для контроля объёмов.' },
+
+      // ===== Объект 8: Мост через р. Есиль =====
+      { objectId: 8, time: isoAgo(1, 15), type: 'deadline', title: 'Зафиксирован срыв срока (просрочен)', who: 'Куратор С. Нурланов', text: 'Плановый срок истёк. Причина: задержка поставки металлоконструкций пролётных строений.' },
+      { objectId: 8, time: isoAgo(6, 11), type: 'contractor', title: 'Жёсткий разбор с подрядчиком «Казахдорстрой»', who: 'Первый заместитель акима', place: 'Акимат', text: 'Подрядчик предупреждён об ответственности по договору и возможном расторжении.' },
+      { objectId: 8, time: isoAgo(9, 16), type: 'complaint', title: 'Жалобы на ночной шум от буровых', who: '8 обращений через e-Otinish', text: 'Жители близлежащих домов жалуются на шум буровых установок ночью. Подрядчику предписано ограничить работы.' },
+      { objectId: 8, time: isoAgo(15, 10), type: 'prescription', title: 'Экологическое предписание', who: 'Департамент экологии', place: 'Стройплощадка моста', text: 'Нарушение режима тишины и складирования. Срок устранения — 3 дня.' },
+
+      // ===== Объект 9: Ясли-сад =====
+      { objectId: 9, time: isoAgo(2, 16), type: 'meeting', title: 'Штаб по подключению к теплосетям ТЭЦ-3', who: 'Под руководством заместителя акима по ЖКХ', place: 'Акимат', text: 'Согласованы технические условия подключения. Проблема с резервной мощностью.' },
+      { objectId: 9, time: isoAgo(5, 12), type: 'contractor', title: 'Встреча с «Astana Elite Build»', who: 'Куратор Г. Омарова (Управление образования)', place: 'Управление образования', text: 'Обсуждены чистовые работы. Готовность 78%.' },
+      { objectId: 9, time: isoAgo(12, 14), type: 'complaint', title: 'Вопросы родителей по электронной очереди', who: '5 обращений', text: 'Обращения по распределению мест. Дано разъяснение через Управление образования.' },
+
+      // ===== Объект 10: ФОК с бассейном =====
+      { objectId: 10, time: isoAgo(3, 11), type: 'prescription', title: 'Повторная госэкспертиза ПСД', who: 'Госэкспертная организация', place: 'РГП «Госэкспертиза»', text: 'Раздел водоочистки бассейна направлен на повторную экспертизу. Влияет на старт СМР.' },
+      { objectId: 10, time: isoAgo(8, 15), type: 'meeting', title: 'Общественное обсуждение проекта ФОК', who: 'Под руководством Управления спорта', place: 'Акимат района', text: 'Обсуждены пожелания жителей по спортивным секциям и расписанию.' },
+      { objectId: 10, time: isoAgo(14, 10), type: 'status', title: 'Объект в статусе «Планирование»', who: 'Куратор Ж. Бекетов', text: 'Ожидается завершение экспертизы и формирование сметы.' }
+    ]
   };
 }
 
@@ -854,10 +998,19 @@ function updateMapMarkers() {
 
 let selectedObjectId = 1;
 
+function focusObjectOnMap(id) {
+  if (!mapInstance || !markersMap[id]) return;
+  const o = state.objects.find(x => x.id === id);
+  if (!o) return;
+  mapInstance.flyTo([o.lat, o.lng], 13, { duration: 1 });
+  markersMap[id].openPopup();
+}
+
 function selectObject(id) {
   selectedObjectId = id;
   focusObjectOnMap(id);
   renderEVM(id);
+  renderTimeline();
   // Highlight row
   document.querySelectorAll('#rows tr').forEach(tr => tr.classList.remove('selected'));
   const row = document.querySelector(`#rows tr[data-id="${id}"]`);
@@ -1055,16 +1208,81 @@ function render() {
     `;
   }).join('') : '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">Объекты по заданным критериям не найдены.</td></tr>';
 
-  // Render History
-  $('history').innerHTML = state.history.length ? [...state.history].reverse().slice(0, 30).map(h => `
-    <li>
-      <time>${new Date(h.time).toLocaleString('ru-RU')}</time>
-      <span>${h.text}</span>
-    </li>
-  `).join('') : '<li style="color:var(--muted); text-align:center; padding:16px;">Изменений дедлайнов пока не зафиксировано.</li>';
+  // Render per-project audit timeline
+  renderTimeline();
 
   updateMapMarkers();
 }
+
+// ============ TIMELINE / AUDIT FEED ============
+const EVENT_TYPES = {
+  status:       { icon: '🔄', label: 'Статус' },
+  deadline:     { icon: '📅', label: 'Срок' },
+  meeting:      { icon: '👥', label: 'Штаб / совещание' },
+  visit:        { icon: '🚗', label: 'Выезд' },
+  contractor:   { icon: '🤝', label: 'Подрядчик' },
+  prescription: { icon: '❗', label: 'Предписание' },
+  payment:      { icon: '💰', label: 'Финансы' },
+  complaint:    { icon: '📢', label: 'Обращение' },
+  photo:        { icon: '📷', label: 'Фотофиксация' }
+};
+let activeTypeFilter = 'all';
+
+function renderTimeline() {
+  const showAll = $('showAllTimeline').checked;
+  const o = state.objects.find(x => x.id === selectedObjectId);
+  $('timelineSubtitle').textContent = showAll
+    ? 'Полный журнал событий по всем объектам'
+    : (o ? `Журнал событий: ${o.name}` : 'Журнал событий');
+
+  const pool = (state.events || []).filter(e => showAll || e.objectId === selectedObjectId);
+  const counts = {};
+  pool.forEach(e => { counts[e.type] = (counts[e.type] || 0) + 1; });
+  const chip = (val, label, count) =>
+    `<button class="timeline-btn ${activeTypeFilter === val ? 'active' : ''}" data-type="${val}">${label}${count ? ' (' + count + ')' : ''}</button>`;
+  $('timelineFilters').innerHTML =
+    chip('all', 'Все события', pool.length) +
+    Object.keys(EVENT_TYPES)
+      .filter(t => counts[t])
+      .map(t => chip(t, EVENT_TYPES[t].icon + ' ' + EVENT_TYPES[t].label, counts[t]))
+      .join('');
+
+  const items = pool
+    .filter(e => activeTypeFilter === 'all' || e.type === activeTypeFilter)
+    .sort((a, b) => new Date(b.time) - new Date(a.time));
+
+  if (!items.length) {
+    $('history').innerHTML = '<li style="color:var(--muted); text-align:center; padding:16px;">Событий по заданному фильтру нет.</li>';
+    return;
+  }
+
+  $('history').innerHTML = items.map(e => {
+    const meta = EVENT_TYPES[e.type] || { icon: '•', label: 'Событие' };
+    const obj = state.objects.find(x => x.id === e.objectId);
+    return `
+      <li class="tl-type-${e.type}">
+        <span class="tl-icon">${meta.icon}</span>
+        ${showAll && obj ? `<span class="tl-object">${obj.name.slice(0, 34)}${obj.name.length > 34 ? '…' : ''}</span>` : ''}
+        <div class="tl-head">
+          <span class="tl-title">${e.title}</span>
+          <span class="tl-time">${new Date(e.time).toLocaleString('ru-RU')}</span>
+        </div>
+        <div class="tl-body">${e.text}</div>
+        <div class="tl-meta">
+          ${e.who ? '👤 ' + e.who : ''}${e.who && e.place ? ' · ' : ''}${e.place ? '📍 ' + e.place : ''}
+        </div>
+      </li>
+    `;
+  }).join('');
+}
+
+$('showAllTimeline').onchange = renderTimeline;
+$('timelineFilters').addEventListener('click', e => {
+  const btn = e.target.closest('[data-type]');
+  if (!btn) return;
+  activeTypeFilter = btn.dataset.type;
+  renderTimeline();
+});
 
 let editingId = null;
 window.editObject = function(id) {
@@ -1101,7 +1319,17 @@ $('editForm').onsubmit = e => {
       time: new Date().toISOString(),
       text: `[${o.district}] ${o.name}: ${changes.join('; ')} (Обоснование: "${reason}")`
     });
+    if (!state.events) state.events = [];
+    state.events.push({
+      objectId: o.id,
+      time: new Date().toISOString(),
+      type: changes.some(c => c.startsWith('срок')) ? 'deadline' : 'status',
+      title: 'Ручная корректировка карточки объекта',
+      who: 'Пользователь демо-версии',
+      text: `${changes.join('; ')}. Обоснование: «${reason}»`
+    });
     persist();
+    renderEVM(o.id);
   }
   $('editor').close();
   render();
