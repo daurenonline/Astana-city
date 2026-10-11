@@ -325,6 +325,71 @@
       color: #fff;
       border-color: var(--teal);
     }
+    /* Action items (поручения) */
+    .actions-block {
+      margin-top: 6px;
+      background: #f6f9fb;
+      border: 1px solid #e3ebf1;
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+    .actions-block .ab-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
+    }
+    .action-item {
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      font-size: 11.5px;
+      padding: 3px 0;
+    }
+    .action-item input { margin-top: 2px; cursor: pointer; }
+    .action-item.done .ab-text { text-decoration: line-through; color: var(--muted); }
+    .action-item .ab-meta { color: var(--muted); font-size: 10px; }
+    /* Risk register */
+    .risk-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .risk-table th {
+      text-align: left; font-size: 10px; text-transform: uppercase; color: var(--muted);
+      padding: 6px 6px; border-bottom: 2px solid var(--line); position: sticky; top: 0; background: #f7fafc;
+    }
+    .risk-table td { padding: 7px 6px; border-bottom: 1px solid #eef1f4; vertical-align: top; }
+    .risk-score {
+      display: inline-block; min-width: 26px; text-align: center; padding: 2px 6px;
+      border-radius: 6px; font-weight: 800; font-size: 11px;
+    }
+    .risk-low { background: #eaf8f0; color: #1e7a4d; }
+    .risk-mid { background: #fef5e9; color: #b06a12; }
+    .risk-high { background: #fdecea; color: #b3261e; }
+    .risk-crit { background: #b3261e; color: #fff; }
+    /* Alerts / escalation */
+    .alert-card {
+      border-radius: 8px; padding: 9px 12px; margin-bottom: 8px; font-size: 12px;
+      border-left: 5px solid #ccc; background: #fbfcfd;
+    }
+    .alert-l3 { border-left-color: #b3261e; background: #fdf3f2; }
+    .alert-l2 { border-left-color: #e67e22; background: #fef7ee; }
+    .alert-l1 { border-left-color: #2980b9; background: #eef5fb; }
+    .alert-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+    .alert-title { font-weight: 700; color: var(--navy); }
+    .esc-badge {
+      font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; white-space: nowrap;
+      color: #fff;
+    }
+    .esc-l3 { background: #b3261e; }
+    .esc-l2 { background: #e67e22; }
+    .esc-l1 { background: #2980b9; }
+    .alert-body { color: #4a5b6b; margin-top: 3px; }
+    .alert-actions { margin-top: 5px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .alert-actions a, .alert-actions button {
+      font-size: 10.5px; text-decoration: none; border-radius: 4px; padding: 3px 8px; cursor: pointer; border: 1px solid var(--line); background: #fff; color: var(--navy);
+    }
+    .full-row { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .full-row { grid-template-columns: 1fr; } }
     .evm-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -566,6 +631,46 @@
       <div id="evmBody"></div>
     </section>
   </div>
+
+  <!-- RISK REGISTER & ESCALATION -->
+  <div class="full-row">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">🎯 Реестр рисков (Risk Register)</h2>
+          <span style="font-size:11px; color:var(--muted);" id="riskSubtitle">Оценка: вероятность × влияние</span>
+        </div>
+        <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
+          <input type="checkbox" id="showAllRisks" style="cursor:pointer;"> Все объекты
+        </label>
+      </div>
+      <div style="max-height:340px; overflow:auto;">
+        <table class="risk-table">
+          <thead>
+            <tr>
+              <th>Риск / Объект</th>
+              <th style="text-align:center;">Вер.</th>
+              <th style="text-align:center;">Влиян.</th>
+              <th style="text-align:center;">Балл</th>
+              <th>Владелец</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody id="riskRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">🚨 Центр уведомлений и эскалации</h2>
+          <span style="font-size:11px; color:var(--muted);">Автоматические сигналы по правилам риска</span>
+        </div>
+      </div>
+      <div id="alertsBody"></div>
+    </section>
+  </div>
 </main>
 
 <!-- Edit Dialog -->
@@ -612,7 +717,7 @@
 
 <script>
 'use strict';
-const KEY = 'kontur-region-demo-v5';
+const KEY = 'kontur-region-demo-v6';
 const $ = id => document.getElementById(id);
 
 function localDate(d = new Date()) {
@@ -850,7 +955,11 @@ function seed() {
       // ===== Объект 1: Водопровод «Северный» =====
       { objectId: 1, time: isoAgo(2, 15), type: 'visit', title: 'Выездная проверка технического надзора', who: 'Технадзор акимата (комиссия из 3 чел.)', place: 'ПК 12–ПК 34, ул. Северная', text: 'Осмотр траншеи и сварных стыков трубопровода. Выявлено отсутствие ограждения зоны разрытия (нарушение ППР). Составлен акт осмотра № ВП-117.' },
       { objectId: 1, time: isoAgo(4, 11), type: 'contractor', title: 'Разбор с подрядчиком по графику поставки', who: 'Куратор А. Сапаров (Управление ТЭК)', place: 'Кабинет № 214, Управление ТЭК', text: 'Подрядчик «АстанаВводСервис» предупреждён о срыве поставки запорной арматуры. Затребован нагоночный график.' },
-      { objectId: 1, time: isoAgo(6, 16), type: 'meeting', title: 'Оперативный штаб по подготовке к отопительному сезону', who: 'Под руководством заместителя акима по ЖКХ', place: 'Зал совещаний акимата', text: 'Рассмотрен ход реконструкции водопровода. Срок сдвинут из-за сезонного подтопления траншеи.' },
+      { objectId: 1, time: isoAgo(6, 16), type: 'meeting', title: 'Оперативный штаб по подготовке к отопительному сезону', who: 'Под руководством заместителя акима по ЖКХ', place: 'Зал совещаний акимата', text: 'Рассмотрен ход реконструкции водопровода. Срок сдвинут из-за сезонного подтопления траншеи.', actions: [
+        { text: 'Подрядчику предоставить нагоночный график до конца недели', responsible: 'ТОО «АстанаВводСервис»', due: 'в течение 5 дней', done: true },
+        { text: 'Обеспечить водоотведение и укрепление стенок траншеи', responsible: 'Куратор А. Сапаров', due: '3 дня', done: false },
+        { text: 'Подготовить уведомление абонентам о переподключении (42 дома)', responsible: 'ГКП «Астана Су Арнасы»', due: '10 дней', done: false }
+      ] },
       { objectId: 1, time: isoAgo(8, 9), type: 'deadline', title: 'Перенос планового срока завершения', who: 'Куратор А. Сапаров', text: 'Срок изменён: 30.09 → 03.10. Причина: сезонное подтопление и удлинение переподключения абонентов (42 дома).' },
       { objectId: 1, time: isoAgo(12, 14), type: 'complaint', title: 'Групповое обращение жителей (e-Otinish)', who: 'Портал e-Otinish № 77412', place: 'ул. Северная, 12/1', text: 'Поступило 3 жалобы на отсутствие ограждения и освещения зоны разрытия. Передано куратору на исполнение в 3 дня.' },
       { objectId: 1, time: isoAgo(20, 10), type: 'payment', title: 'Оплата промежуточного акта выполненных работ', who: 'ГУ «Управление финансов»', text: 'Оплачено 240 млн ₸ за фактически выполненный объём по акту КС-2 (50% от договора).' },
@@ -882,7 +991,10 @@ function seed() {
       // ===== Объект 6: Путепровод Коргалжын =====
       { objectId: 6, time: isoAgo(2, 15), type: 'prescription', title: 'Выписано предписание за нарушения ПБ', who: 'Технадзор акимата', place: 'Путепровод, ул. Коргалжын', text: 'Выявлены нарушения по ограждению и сигнальным огням. Срок устранения — 5 дней. Иначе — штраф.' },
       { objectId: 6, time: isoAgo(5, 11), type: 'contractor', title: 'Встреча по устранению отставания укладки ЩМА', who: 'Куратор Т. Ибраев (Управление автодорог)', place: 'Управление автодорог', text: 'Подрядчик «КазДорМост» подтвердил мобилизацию второй бригады с 15 числа.' },
-      { objectId: 6, time: isoAgo(11, 16), type: 'meeting', title: 'Штаб по транспортной ситуации из-за ремонта', who: 'Под руководством заместителя акима по транспорту', place: 'Акимат', text: 'Утверждена схема объезда и корректировка фаз светофоров.' },
+      { objectId: 6, time: isoAgo(11, 16), type: 'meeting', title: 'Штаб по транспортной ситуации из-за ремонта', who: 'Под руководством заместителя акима по транспорту', place: 'Акимат', text: 'Утверждена схема объезда и корректировка фаз светофоров.', actions: [
+        { text: 'Скорректировать фазы светофоров на объездных перекрёстках', responsible: 'Управление транспорта', due: '4 дня', done: false },
+        { text: 'Опубликовать схему объезда для жителей в соцсетях и 2ГИС', responsible: 'Пресс-служба акимата', due: '2 дня', done: true }
+      ] },
       { objectId: 6, time: isoAgo(20, 9), type: 'deadline', title: 'Перенос срока завершения', who: 'Куратор Т. Ибраев', text: 'Срок изменён на 15 дней позже. Причина: срыв субподрядчиком графика поставки ЩМА.' },
       { objectId: 6, time: isoAgo(24, 12), type: 'complaint', title: 'Массовые жалобы на пробки', who: '12 обращений через e-Otinish + соцсети', text: 'Жалобы на заторы на объездной трассе в часы пик. Направлено в Управление транспорта.' },
 
@@ -898,7 +1010,10 @@ function seed() {
       { objectId: 8, time: isoAgo(15, 10), type: 'prescription', title: 'Экологическое предписание', who: 'Департамент экологии', place: 'Стройплощадка моста', text: 'Нарушение режима тишины и складирования. Срок устранения — 3 дня.' },
 
       // ===== Объект 9: Ясли-сад =====
-      { objectId: 9, time: isoAgo(2, 16), type: 'meeting', title: 'Штаб по подключению к теплосетям ТЭЦ-3', who: 'Под руководством заместителя акима по ЖКХ', place: 'Акимат', text: 'Согласованы технические условия подключения. Проблема с резервной мощностью.' },
+      { objectId: 9, time: isoAgo(2, 16), type: 'meeting', title: 'Штаб по подключению к теплосетям ТЭЦ-3', who: 'Под руководством заместителя акима по ЖКХ', place: 'Акимат', text: 'Согласованы технические условия подключения. Проблема с резервной мощностью.', actions: [
+        { text: 'Выдать технические условия на подключение', responsible: 'АО «Астана-Теплотранзит»', due: '7 дней', done: true },
+        { text: 'Проработать резервную мощность теплового узла', responsible: 'Проектировщик', due: '14 дней', done: false }
+      ] },
       { objectId: 9, time: isoAgo(5, 12), type: 'contractor', title: 'Встреча с «Astana Elite Build»', who: 'Куратор Г. Омарова (Управление образования)', place: 'Управление образования', text: 'Обсуждены чистовые работы. Готовность 78%.' },
       { objectId: 9, time: isoAgo(12, 14), type: 'complaint', title: 'Вопросы родителей по электронной очереди', who: '5 обращений', text: 'Обращения по распределению мест. Дано разъяснение через Управление образования.' },
 
@@ -906,6 +1021,20 @@ function seed() {
       { objectId: 10, time: isoAgo(3, 11), type: 'prescription', title: 'Повторная госэкспертиза ПСД', who: 'Госэкспертная организация', place: 'РГП «Госэкспертиза»', text: 'Раздел водоочистки бассейна направлен на повторную экспертизу. Влияет на старт СМР.' },
       { objectId: 10, time: isoAgo(8, 15), type: 'meeting', title: 'Общественное обсуждение проекта ФОК', who: 'Под руководством Управления спорта', place: 'Акимат района', text: 'Обсуждены пожелания жителей по спортивным секциям и расписанию.' },
       { objectId: 10, time: isoAgo(14, 10), type: 'status', title: 'Объект в статусе «Планирование»', who: 'Куратор Ж. Бекетов', text: 'Ожидается завершение экспертизы и формирование сметы.' }
+    ],
+    risks: [
+      // objectId, title, probability (1-5), impact (1-5), owner, status, mitigation
+      { objectId: 1, title: 'Срыв поставки запорной арматуры', probability: 4, impact: 4, owner: 'Куратор А. Сапаров', status: 'Открыт', mitigation: 'Зарезервировать альтернативного поставщика; штрафные санкции по договору.' },
+      { objectId: 1, title: 'Сезонное подтопление траншеи', probability: 3, impact: 3, owner: 'ТОО «АстанаВводСервис»', status: 'Реализовался', mitigation: 'Водоотведение и укрепление стенок; пересмотр метода прокладки.' },
+      { objectId: 2, title: 'Задержка поставки вентиляционного оборудования', probability: 3, impact: 3, owner: 'ТОО «BI Global Stroy»', status: 'Открыт', mitigation: 'Ускорение чистовых работ; параллельный монтаж на этажах.' },
+      { objectId: 4, title: 'Корректировка сметы на медгазы (О₂, вакуум)', probability: 4, impact: 2, owner: 'Управление здравоохранения', status: 'Открыт', mitigation: 'Повторная экспертиза; резерв 5% на непредвиденные.' },
+      { objectId: 5, title: 'Погодные ограничения по укладке брусчатки', probability: 4, impact: 2, owner: 'ТОО «Зеленстрой KZ»', status: 'Реализовался', mitigation: 'Продление сроков на 12 дней; ускорение в сухие дни.' },
+      { objectId: 6, title: 'Срыв графика укладки ЩМА субподрядчиком', probability: 5, impact: 4, owner: 'ТОО «КазДорМост»', status: 'Реализовался', mitigation: 'Мобилизация второй бригады; штраф; замена субподрядчика.' },
+      { objectId: 6, title: 'Социальная напряжённость из-за пробок', probability: 4, impact: 3, owner: 'Управление транспорта', status: 'Открыт', mitigation: 'Схема объезда, корректировка светофоров, информирование.' },
+      { objectId: 7, title: 'Перенос высоковольтных кабелей и теплотрассы', probability: 3, impact: 5, owner: 'Управление ТЭК', status: 'Открыт', mitigation: 'Согласование с сетевиками; ночные окна для выноса.' },
+      { objectId: 8, title: 'Задержка поставки металлоконструкций пролётов', probability: 5, impact: 5, owner: 'ТОО «Казахдорстрой»', status: 'Реализовался', mitigation: 'Претензионная работа; рассмотрение расторжения договора.' },
+      { objectId: 8, title: 'Экологические нарушения и шум', probability: 4, impact: 2, owner: 'Генподрядчик', status: 'Открыт', mitigation: 'Ограничение ночных работ; шумозащитные экраны.' },
+      { objectId: 10, title: 'Повторная госэкспертиза раздела водоочистки', probability: 4, impact: 3, owner: 'Проектировщик', status: 'Открыт', mitigation: 'Ускорить корректировку ПСД; параллельная экспертиза.' }
     ]
   };
 }
@@ -918,6 +1047,14 @@ try {
 } catch (e) {
   state = seed();
 }
+// Normalize / migrate state
+function normalizeState() {
+  if (!state.events) state.events = [];
+  state.events.forEach((e, i) => { if (e.id == null) e.id = i + 1; });
+  if (!state.risks) state.risks = [];
+  state.risks.forEach((r, i) => { if (r.id == null) r.id = 'R' + (i + 1); });
+}
+normalizeState();
 
 function persist() {
   try {
@@ -1011,34 +1148,27 @@ function selectObject(id) {
   focusObjectOnMap(id);
   renderEVM(id);
   renderTimeline();
+  renderRisks();
+  renderAlerts();
   // Highlight row
   document.querySelectorAll('#rows tr').forEach(tr => tr.classList.remove('selected'));
   const row = document.querySelector(`#rows tr[data-id="${id}"]`);
   if (row) row.classList.add('selected');
 }
 
-function renderEVM(id) {
-  const o = state.objects.find(x => x.id === id) || state.objects[0];
-  if (!o) return;
-
+// Pure EVM computation shared by EVM panel and escalation engine
+function computeEVM(o) {
   const today = localDate();
   const late = isLate(o, today);
-
-  // EVM Calculations
   const BAC = o.budget;
   const EV_pct = o.progress;
   const EV = Math.round(BAC * (EV_pct / 100));
 
   let PV_pct = 100;
-  if (o.status === 'Завершён') {
-    PV_pct = 100;
-  } else if (late) {
-    PV_pct = 95;
-  } else if (o.status === 'Планирование') {
-    PV_pct = 25;
-  } else {
-    PV_pct = Math.min(100, Math.round(EV_pct + 12));
-  }
+  if (o.status === 'Завершён') PV_pct = 100;
+  else if (late) PV_pct = 95;
+  else if (o.status === 'Планирование') PV_pct = 25;
+  else PV_pct = Math.min(100, Math.round(EV_pct + 12));
   const PV = Math.round(BAC * (PV_pct / 100));
 
   let AC_pct = o.status === 'Завершён' ? 100 : Math.min(100, Math.round(EV_pct + (late ? 14 : 5)));
@@ -1050,6 +1180,17 @@ function renderEVM(id) {
   const SPI = spiVal.toFixed(2);
   const CPI = cpiVal.toFixed(2);
   const EAC = Math.round(BAC / (cpiVal > 0 ? cpiVal : 1));
+  const VAC = BAC - EAC;
+  const TCPI = (BAC - EV) !== 0 ? ((BAC - EV) / (BAC - AC)) : 0;
+
+  return { today, late, BAC, EV, EV_pct, PV, PV_pct, AC, AC_pct, spiVal, cpiVal, SPI, CPI, EAC, VAC, TCPI };
+}
+
+function renderEVM(id) {
+  const o = state.objects.find(x => x.id === id) || state.objects[0];
+  if (!o) return;
+
+  const { today, late, BAC, EV, EV_pct, PV, PV_pct, AC, AC_pct, spiVal, cpiVal, SPI, CPI, EAC } = computeEVM(o);
 
   let spiClass = 'good';
   let spiText = 'В графике';
@@ -1210,6 +1351,8 @@ function render() {
 
   // Render per-project audit timeline
   renderTimeline();
+  renderRisks();
+  renderAlerts();
 
   updateMapMarkers();
 }
@@ -1259,6 +1402,19 @@ function renderTimeline() {
   $('history').innerHTML = items.map(e => {
     const meta = EVENT_TYPES[e.type] || { icon: '•', label: 'Событие' };
     const obj = state.objects.find(x => x.id === e.objectId);
+    const actionsHtml = (e.actions && e.actions.length) ? `
+      <div class="actions-block">
+        <div class="ab-title">📋 Поручения по итогам (${e.actions.filter(a => a.done).length}/${e.actions.length} выполнено)</div>
+        ${e.actions.map((a, k) => `
+          <label class="action-item ${a.done ? 'done' : ''}">
+            <input type="checkbox" ${a.done ? 'checked' : ''} onchange="toggleAction(${e.id}, ${k})">
+            <span>
+              <span class="ab-text">${a.text}</span><br>
+              <span class="ab-meta">Исполнитель: ${a.responsible} · Срок: ${a.due}</span>
+            </span>
+          </label>
+        `).join('')}
+      </div>` : '';
     return `
       <li class="tl-type-${e.type}">
         <span class="tl-icon">${meta.icon}</span>
@@ -1271,10 +1427,20 @@ function renderTimeline() {
         <div class="tl-meta">
           ${e.who ? '👤 ' + e.who : ''}${e.who && e.place ? ' · ' : ''}${e.place ? '📍 ' + e.place : ''}
         </div>
+        ${actionsHtml}
       </li>
     `;
   }).join('');
 }
+
+window.toggleAction = function (eventId, k) {
+  const e = (state.events || []).find(x => x.id === eventId);
+  if (!e || !e.actions || !e.actions[k]) return;
+  e.actions[k].done = !e.actions[k].done;
+  persist();
+  renderTimeline();
+  renderAlerts();
+};
 
 $('showAllTimeline').onchange = renderTimeline;
 $('timelineFilters').addEventListener('click', e => {
@@ -1283,6 +1449,121 @@ $('timelineFilters').addEventListener('click', e => {
   activeTypeFilter = btn.dataset.type;
   renderTimeline();
 });
+
+// ============ RISK REGISTER ============
+function riskClass(score) {
+  if (score >= 20) return 'risk-crit';
+  if (score >= 12) return 'risk-high';
+  if (score >= 6) return 'risk-mid';
+  return 'risk-low';
+}
+function renderRisks() {
+  const showAll = $('showAllRisks').checked;
+  const o = state.objects.find(x => x.id === selectedObjectId);
+  $('riskSubtitle').textContent = showAll
+    ? 'Все риски по региону (вероятность × влияние)'
+    : `Риски объекта: ${o ? o.name : ''}`;
+  const rows = (state.risks || [])
+    .filter(r => showAll || r.objectId === selectedObjectId)
+    .sort((a, b) => (b.probability * b.impact) - (a.probability * a.impact));
+  $('riskRows').innerHTML = rows.length ? rows.map(r => {
+    const score = r.probability * r.impact;
+    const obj = state.objects.find(x => x.id === r.objectId);
+    const statusColor = r.status === 'Реализовался' ? '#b3261e' : r.status === 'Снят' ? '#1e7a4d' : '#b06a12';
+    return `
+      <tr>
+        <td>
+          <strong>${r.title}</strong>
+          ${showAll && obj ? `<div style="font-size:10px; color:var(--muted); margin-top:1px;">${obj.name}</div>` : ''}
+          <div style="font-size:10px; color:#777; margin-top:3px;">➡ ${r.mitigation}</div>
+        </td>
+        <td style="text-align:center;">${r.probability}</td>
+        <td style="text-align:center;">${r.impact}</td>
+        <td style="text-align:center;"><span class="risk-score ${riskClass(score)}">${score}</span></td>
+        <td>${r.owner}</td>
+        <td><span style="color:${statusColor}; font-weight:600;">${r.status}</span></td>
+      </tr>`;
+  }).join('') : '<tr><td colspan="6" style="text-align:center; color:var(--muted); padding:16px;">Рисков по объекту не зафиксировано.</td></tr>';
+}
+
+// ============ ESCALATION / NOTIFICATION CENTRE ============
+function renderAlerts() {
+  const today = localDate();
+  const alerts = [];
+
+  state.objects.forEach(o => {
+    const m = computeEVM(o);
+    // Rule 1: overdue -> escalation to deputy akim (L3)
+    if (m.late) {
+      alerts.push({
+        level: 3, objectId: o.id, title: `Просрочен объект: ${o.name}`,
+        body: `Срок истёк ${displayDate(o.deadline)}. SPI=${m.SPI}, готовность ${m.EV_pct}%. Прогноз стоимости ${formatMoney(m.EAC)}.`,
+        who: o.owner, whatsapp: o.whatsapp, telegram: o.telegram
+      });
+    } else if (m.spiVal < 0.85) {
+      // Rule 2: critical schedule slip, not yet overdue -> L2
+      alerts.push({
+        level: 2, objectId: o.id, title: `Критическое отставание по графику: ${o.name}`,
+        body: `SPI=${m.SPI} (< 0.85). Разрыв «план ${m.PV_pct}% / факт ${m.EV_pct}%». Риск срыва срока.`,
+        who: o.owner, whatsapp: o.whatsapp, telegram: o.telegram
+      });
+    }
+    // Rule 3: cost overrun forecast -> L2
+    if (m.cpiVal < 0.9 && !m.late) {
+      alerts.push({
+        level: 2, objectId: o.id, title: `Прогноз перерасхода бюджета: ${o.name}`,
+        body: `CPI=${m.CPI}. Прогноз (EAC) ${formatMoney(m.EAC)} против плана ${formatMoney(m.BAC)}.`,
+        who: o.owner, whatsapp: o.whatsapp, telegram: o.telegram
+      });
+    }
+    // Rule 4: high-impact open risks -> L2
+    (state.risks || []).filter(r => r.objectId === o.id && r.status !== 'Снят' && (r.probability * r.impact) >= 16)
+      .forEach(r => alerts.push({
+        level: 2, objectId: o.id, title: `Высокий риск: ${r.title}`,
+        body: `Балл риска ${r.probability * r.impact} (вероятность ${r.probability} × влияние ${r.impact}). Владелец: ${r.owner}.`,
+        who: r.owner
+      }));
+    // Rule 5: unexplained deadline pushes (audit trail) -> L1
+    const pushes = (state.events || []).filter(e => e.objectId === o.id && e.type === 'deadline').length;
+    if (pushes >= 2) {
+      alerts.push({
+        level: 1, objectId: o.id, title: `Многократный перенос срока: ${o.name}`,
+        body: `Зафиксировано переносов дедлайна: ${pushes}. Требуется проверка обоснованности проектного офиса.`,
+        who: o.owner, whatsapp: o.whatsapp, telegram: o.telegram
+      });
+    }
+  });
+
+  alerts.sort((a, b) => b.level - a.level);
+
+  const escLabel = { 3: 'Уровень 3 · Заместитель акима', 2: 'Уровень 2 · Руководитель управления', 1: 'Уровень 1 · Куратор проекта' };
+  const escClass = { 3: 'esc-l3', 2: 'esc-l2', 1: 'esc-l1' };
+
+  $('alertsBody').innerHTML = alerts.length ? `
+    <div style="font-size:11.5px; color:var(--muted); margin-bottom:8px;">Активных сигналов: <strong>${alerts.length}</strong> · Сформировано ${new Date().toLocaleString('ru-RU')}</div>
+    <div style="max-height:340px; overflow:auto;">
+    ${alerts.map(a => {
+      const o = state.objects.find(x => x.id === a.objectId);
+      return `
+      <div class="alert-card alert-l${a.level}">
+        <div class="alert-head">
+          <span class="alert-title">${a.title}</span>
+          <span class="esc-badge ${escClass[a.level]}">${a.level === 3 ? 'L3' : a.level === 2 ? 'L2' : 'L1'}</span>
+        </div>
+        <div class="alert-body">${a.body}</div>
+        <div class="alert-body" style="font-size:10.5px; color:var(--muted);">${escLabel[a.level]}</div>
+        <div class="alert-actions">
+          ${a.whatsapp ? `<a href="https://wa.me/${a.whatsapp.replace(/[^0-9]/g, '')}" target="_blank">💬 Куратору (WhatsApp)</a>` : ''}
+          ${a.telegram ? `<a href="https://t.me/${a.telegram}" target="_blank">✈️ Telegram</a>` : ''}
+          <button onclick="selectObject(${a.objectId})">Открыть объект</button>
+        </div>
+      </div>`;
+    }).join('')}
+    </div>
+  ` : '<div style="color:var(--muted); text-align:center; padding:20px;">Активных сигналов нет. Все объекты в пределах допустимых отклонений.</div>';
+}
+
+$('showAllRisks').onchange = renderRisks;
 
 let editingId = null;
 window.editObject = function(id) {
@@ -1377,8 +1658,10 @@ $('export').onclick = () => {
 $('resetBtn').onclick = () => {
   if (confirm('Сбросить данные к базовому тестовому набору?')) {
     state = seed();
+    normalizeState();
     persist();
     render();
+    renderEVM(selectedObjectId);
   }
 };
 
