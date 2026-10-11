@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "creation": "2026-10-11 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "infrastructure_object",
+  "object_name",
+  "curator",
+  "column_break_req",
+  "current_deadline",
+  "requested_deadline",
+  "workflow_state",
+  "justification_section",
+  "reason_category",
+  "justification",
+  "supporting_document",
+  "resolution_section",
+  "approved_by",
+  "approval_date",
+  "resolution_comment"
+ ],
+ "fields": [
+  {
+   "fieldname": "infrastructure_object",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Инфраструктурный объект",
+   "options": "Infrastructure Object",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "infrastructure_object.object_name",
+   "fieldname": "object_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Наименование объекта",
+   "read_only": 1
+  },
+  {
+   "fieldname": "curator",
+   "fieldtype": "Data",
+   "label": "Инициатор заявки (куратор)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_req",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "infrastructure_object.deadline",
+   "fieldname": "current_deadline",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Текущий плановый срок",
+   "read_only": 1
+  },
+  {
+   "fieldname": "requested_deadline",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Запрашиваемый новый срок",
+   "reqd": 1
+  },
+  {
+   "default": "Черновик",
+   "fieldname": "workflow_state",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Статус согласования",
+   "options": "Черновик\nНа рассмотрении Управления\nНа согласовании Зам. акима\nУтверждено\nОтклонено",
+   "read_only": 1
+  },
+  {
+   "fieldname": "justification_section",
+   "fieldtype": "Section Break",
+   "label": "Обоснование продления срока"
+  },
+  {
+   "fieldname": "reason_category",
+   "fieldtype": "Select",
+   "label": "Причина сдвига срока",
+   "options": "Корректировка ПСД\nПогодные условия / Сезонность\nЗадержка поставки оборудования\nСудебные разбирательства с подрядчиком\nЗадержка финансирования\nФорс-мажор",
+   "reqd": 1
+  },
+  {
+   "fieldname": "justification",
+   "fieldtype": "Text",
+   "label": "Подробное мотивировочное обоснование",
+   "reqd": 1
+  },
+  {
+   "fieldname": "supporting_document",
+   "fieldtype": "Attach",
+   "label": "Подтверждающий документ (письмо / акт / допсоглашение)"
+  },
+  {
+   "fieldname": "resolution_section",
+   "fieldtype": "Section Break",
+   "label": "Резолюция руководства акимата"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Data",
+   "label": "Должностное лицо, вынесшее решение",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Date",
+   "label": "Дата резолюции",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resolution_comment",
+   "fieldtype": "Small Text",
+   "label": "Комментарий к резолюции"
+  }
+ ],
+ "modified": "2026-10-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Kontur Region",
+ "name": "Deadline Extension Request",
+ "naming_rule": "Expression",
+ "autoname": "format:REQ-{#####}",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Projects Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Projects User"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

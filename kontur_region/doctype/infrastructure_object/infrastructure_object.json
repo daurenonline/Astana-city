@@ -13,9 +13,17 @@
   "status",
   "deadline",
   "is_overdue",
-  "accounting_section",
+  "gis_section",
+  "geolocation",
+  "latitude",
+  "longitude",
+  "technical_progress_section",
+  "completion_percent",
   "budget_kzt",
+  "financing_source",
   "contractor",
+  "contract_number",
+  "column_break_tech",
   "description",
   "audit_trail_section",
   "deadline_change_count"
@@ -45,8 +53,9 @@
    "fieldname": "category",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Категория",
-   "options": "ЖКХ и водоснабжение\nДороги и транспорт\nОбразование\nЗдравоохранение\nБлагоустройство\nСпорт и культура\nПрочее"
+   "label": "Отраслевая категория",
+   "options": "ЖКХ и водоснабжение\nДороги и транспорт\nОбразование\nЗдравоохранение\nБлагоустройство\nСпорт и культура\nПрочее",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_main",
@@ -56,7 +65,7 @@
    "fieldname": "owner_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Ответственный куратор",
+   "label": "Ответственный куратор (управление)",
    "reqd": 1
   },
   {
@@ -64,7 +73,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Статус",
+   "label": "Статус реализации",
    "options": "Планирование\nВ работе\nПриостановлен\nЗавершён",
    "reqd": 1
   },
@@ -72,7 +81,7 @@
    "fieldname": "deadline",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Плановый срок завершения",
+   "label": "Плановый срок сдачи",
    "reqd": 1
   },
   {
@@ -80,18 +89,52 @@
    "fieldname": "is_overdue",
    "fieldtype": "Check",
    "in_list_view": 1,
-   "label": "Просрочен",
+   "label": "Просрочен (Красная зона)",
    "read_only": 1
   },
   {
-   "fieldname": "accounting_section",
+   "fieldname": "gis_section",
    "fieldtype": "Section Break",
-   "label": "Финансирование и подрядчик"
+   "label": "Геолокация и ГИС (Единая карта)"
+  },
+  {
+   "fieldname": "geolocation",
+   "fieldtype": "Geolocation",
+   "label": "Геоточка / Полигон (OpenStreetMap)"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Широта (Lat)"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Долгота (Lng)"
+  },
+  {
+   "fieldname": "technical_progress_section",
+   "fieldtype": "Section Break",
+   "label": "Прогресс СМР и финансирование"
+  },
+  {
+   "default": "0",
+   "fieldname": "completion_percent",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Готовность СМР (%)"
   },
   {
    "fieldname": "budget_kzt",
    "fieldtype": "Currency",
-   "label": "Бюджет (тенге)"
+   "in_list_view": 1,
+   "label": "Бюджет проекта (тенге)"
+  },
+  {
+   "fieldname": "financing_source",
+   "fieldtype": "Select",
+   "label": "Источник финансирования",
+   "options": "Республиканский бюджет (РБ)\nМестный бюджет (МБ)\nНациональный фонд\nЧастные инвестиции / ГЧП"
   },
   {
    "fieldname": "contractor",
@@ -99,20 +142,29 @@
    "label": "Генеральный подрядчик"
   },
   {
+   "fieldname": "contract_number",
+   "fieldtype": "Data",
+   "label": "Номер договора госзакупок"
+  },
+  {
+   "fieldname": "column_break_tech",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "description",
    "fieldtype": "Small Text",
-   "label": "Краткое описание работ"
+   "label": "Краткая характеристика проекта"
   },
   {
    "fieldname": "audit_trail_section",
    "fieldtype": "Section Break",
-   "label": "История и аудит"
+   "label": "История и аудит переноса сроков"
   },
   {
    "default": "0",
    "fieldname": "deadline_change_count",
    "fieldtype": "Int",
-   "label": "Количество переносов срока",
+   "label": "Количество корректировок дедлайна",
    "read_only": 1
   }
  ],
@@ -129,7 +181,7 @@
  "module": "Kontur Region",
  "name": "Infrastructure Object",
  "naming_rule": "Expression",
- "autoname": "format:OBJ-{#####}",
+ "autoname": "format:INFRA-{#####}",
  "owner": "Administrator",
  "permissions": [
   {

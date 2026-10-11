@@ -1,91 +1,105 @@
 # Контур региона (GTON 2026)
 
-**Единая система оперативного контроля сроков инфраструктурных проектов региона**  
-*Проект подготовлен для акселератора GTON 2026 (Astana Hub, трек GovTech).*
+**Единая геоинформационная система оперативного контроля сроков и рисков инфраструктурных проектов региона**  
+*Проект разработан для акселератора GTON 2026 (Astana Hub, трек GovTech).*
 
 [![Лицензия: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
-[![Платформа: Frappe](https://img.shields.io/badge/Platform-Frappe%20v15-blue.svg)](https://frappeframework.com/)
-[![Стадия: Pre-Seed](https://img.shields.io/badge/Stage-Pre--Seed%20Demo-green.svg)](#)
+[![Платформа: Frappe Framework](https://img.shields.io/badge/Platform-Frappe%20v15%20(MIT)-blue.svg)](https://frappeframework.com/)
+[![ГИС: OpenStreetMap / Leaflet](https://img.shields.io/badge/GIS-OpenStreetMap%20%2B%20Leaflet-green.svg)](#)
+[![Стадия: Pre-Seed](https://img.shields.io/badge/Stage-Pre--Seed%20Working%20Demo-brightgreen.svg)](#)
+
+---
 
 ## 🌐 Публичные ссылки проекта
 
-- **Репозиторий на GitHub:** [https://github.com/daurenonline/Astana-city](https://github.com/daurenonline/Astana-city)
-- **Живое демо (GitHub Pages):** [https://daurenonline.github.io/Astana-city/](https://daurenonline.github.io/Astana-city/)
-- **Презентация (Pitch Deck):** [https://daurenonline.github.io/Astana-city/presentation.html](https://daurenonline.github.io/Astana-city/presentation.html)
+- **Живая интерактивная карта (GitHub Pages):** [https://daurenonline.github.io/Astana-city/](https://daurenonline.github.io/Astana-city/)
+- **Презентация Pitch Deck (3 слайда):** [https://daurenonline.github.io/Astana-city/presentation.html](https://daurenonline.github.io/Astana-city/presentation.html)
+- **Открытый репозиторий GitHub:** [https://github.com/daurenonline/Astana-city](https://github.com/daurenonline/Astana-city)
 
 ---
 
-## 📌 О концепции проекта
+## 📌 Расширенное соответствие ТЗ «Единая карта инфраструктурных объектов»
 
-«Контур региона» — это прикладной инструмент для региональных и районных акиматов, позволяющий навести прозрачный порядок в мониторинге инфраструктурных строек и ремонтов (водопроводы, теплосети, школы, больницы, дороги).
+В соответствии с требованиями регионального управления и GovTech-стандартами Республики Казахстан, система охватывает полный контур задач:
 
-### Ключевые возможности:
-1. **Единый реестр инфраструктурных объектов:** сводный статус по всем проектам региона в одном окне.
-2. **Автоматический расчёт просрочек:** система непрерывно сверяет плановые даты с календарем и подсвечивает риски до наступления критического момента.
-3. **Неизменяемый аудит-журнал (Deadline Change Log):** любая корректировка дедлайна протоколируется (автор, время, старый срок, новый срок, обоснование).
-4. **Сводка для руководства (Dashboard):** ключевые метрики (всего / в работе / просрочено / закрыто) доступны за 2 секунды.
+### 1. Геоинформационный модуль (GIS Map):
+- **Интерактивная карта региона:** отображение инфраструктурных объектов на картографической основе OpenStreetMap / Leaflet (ЖКХ, дороги, социальная сфера).
+- **Светофорная индикация рисков:**
+  - 🔴 **Красный:** сорван плановый дедлайн при незавершённом объекте (критическая зона).
+  - 🟢 **Зелёный:** СМР ведутся в пределах календарного графика.
+  - 🟠 **Оранжевый:** этап проектирования / экспертизы ТЭО.
+  - 🔵 **Синий:** объект сдан в эксплуатацию.
+- **Двусторонняя синхронизация:** выбор объекта в таблице центрирует карту и раскрывает паспорт проекта.
+
+### 2. Финансовый и технический контроль:
+- Учёт проектного бюджета и расчёт **«Бюджета в зоне риска»** (сумма средств по объектам со срывом сроков).
+- Мониторинг процента готовности строительно-монтажных работ (СМР 0–100%).
+- Привязка генерального подрядчика и номера договора госзакупок.
+
+### 3. Регламентный контроль дедлайнов (Workflow):
+- **Неизменяемый журнал аудита (`Deadline Change Log`):** фиксирует автора, дату и обоснование каждого сдвига дедлайна.
+- **Электронный маршрут продления сроков (`Deadline Extension Request`):**
+  *Инициатор (Куратор) $\rightarrow$ Согласование руководителем управления $\rightarrow$ Резолюция заместителя акима.*
+
+### 4. Автоматизация управленческой отчётности:
+- **Селекторная справка в 1 клик:** автоматическая генерация краткой выжимки для еженедельного аппаратного совещания у акима (список проблемных строек, отставание от графика, сумма под риском).
 
 ---
 
-## 🛠 Технологический стек: Frappe Framework (MIT)
+## 🛠 Технологический базис: Frappe Framework (Лицензия MIT)
 
-Серверная версия проекта спроектирована на базе **Frappe Framework** под лицензией **MIT**:
-- **Python / MariaDB / PostgreSQL / Redis / Nginx**
-- **Полная локализация данных в Казахстане** (on-premise развёртывание в контуре акимата или ЦОД АО «НИТ» / PS.kz).
-- **Нулевые затраты на лицензии:** Open Source базис исключает санкционные и валютные риски.
+Серверная часть решения реализована как кастомное приложение для **Frappe Framework v15** (открытая лицензия MIT):
 
-### Структура репозитория (Frappe App):
+### Архитектура приложения `kontur_region`:
 ```text
-g-ton/
-├── kontur_region/                  # Пакет Frappe App
-│   ├── hooks.py                    # Хуки Frappe (крон-задачи, роутинг, события)
-│   ├── modules.txt                 # Модули приложения
-│   ├── api.py                      # REST API эндпоинты (/api/method/kontur_region.api.*)
-│   ├── tasks.py                    # Ежедневный пересчёт просрочек (scheduler)
-│   ├── doctype/                    # Схемы DocType:
-│   │   ├── infrastructure_object/  # Объект инфраструктуры (свойства, сроки, статус)
-│   │   ├── deadline_change_log/    # Аудит-журнал переноса дедлайнов
-│   │   └── region_district/        # Справочник районов / городов
-│   └── www/                        # Веб-страницы портала:
-│       ├── index.html              # Интерактивный веб-дашборд
-│       └── presentation.html       # 3-слайдовый Pitch Deck
-├── index.html                      # Корневой автономный прототип (для GitHub Pages)
-├── presentation.html               # 3-слайдовый Pitch Deck (печать в PDF)
-├── docker-compose.yml              # Запуск полного Frappe-стека в Docker
-├── pyproject.toml                  # Метаданные пакета Python
-├── GTON_APPLICATION_PACK.md        # Готовые тексты заявки для Astana Hub
-├── LICENSE                         # Лицензия MIT
-└── README.md                       # Документация проекта
+Astana-city/
+├── kontur_region/                          # Frappe App пакет (Python / Meta-data)
+│   ├── hooks.py                            # Крон-задачи, роутинг, события БД
+│   ├── api.py                              # REST API (сводка, справка акима, обновление)
+│   ├── tasks.py                            # Ежедневный пересчёт просрочек планировщиком
+│   ├── doctype/
+│   │   ├── infrastructure_object/          # Карточка объекта (ГИС, бюджет, СМР, срок)
+│   │   ├── deadline_extension_request/     # Воркфлоу согласования переноса дедлайна
+│   │   ├── deadline_change_log/            # Неизменяемый журнал аудита
+│   │   └── region_district/                # Справочник районов / городов
+│   └── www/                                # Веб-портал акимата
+│       ├── index.html                      # Интерактивная карта и дашборд
+│       └── presentation.html               # Pitch Deck
+├── index.html                              # Корневой интерактивный интерфейс (GitHub Pages)
+├── presentation.html                       # Презентация для экспертов
+├── docker-compose.yml                      # Развёртывание Frappe + DB + Redis + Nginx
+├── pyproject.toml                          # Стандартный Python-манифест
+├── GTON_APPLICATION_PACK.md                # Готовые тексты заявки для Astana Hub
+├── LICENSE                                 # Открытая лицензия MIT
+└── README.md
 ```
+
+### Преимущества стека Frappe (MIT) для госсектора РК:
+1. **Строгая локализация данных:** On-premise развёртывание на серверах акимата или ЦОД АО «НИТ» / PS.kz внутри Казахстана.
+2. **Ролевая безопасность (RBAC):** разграничение доступа между акимом, управлениями, районными акиматами и подрядчиками.
+3. **Отсутствие лицензионных платежей:** открытая лицензия MIT исключает валютные и санкционные риски.
+4. **Готовность к аттестации ИБ:** соответствие Единым требованиям в области ИКТ (ЕТТ РК) за счёт закрытого серверного контура.
 
 ---
 
-## 🚀 Варианты запуска
+## 🚀 Варианты развёртывания
 
-### Вариант 1. Автономный демонстрационный интерфейс (0 секунд, без зависимостей)
-Просто откройте файл `index.html` в любом браузере:
-- Работает полностью автономно (HTML + Vanilla JS + CSS).
-- Сохраняет данные в локальном хранилище браузера (`localStorage`).
-- Позволяет смоделировать перенос срока $\rightarrow$ авторасчёт просрочки $\rightarrow$ журнал изменений $\rightarrow$ экспорт JSON.
+### 1. Онлайн-демо (GitHub Pages)
+Доступно сразу без установки:  
+👉 **[https://daurenonline.github.io/Astana-city/](https://daurenonline.github.io/Astana-city/)**
 
-### Вариант 2. Развёртывание на Frappe Bench
-Для установки приложения в существующий инстанс Frappe v15:
-```bash
-# 1. Скачиваем приложение в bench
-bench get-app kontur_region https://github.com/your-org/g-ton.git
-
-# 2. Устанавливаем на нужный сайт
-bench --site your-site.kz install-app kontur_region
-
-# 3. Выполняем миграции DocType
-bench --site your-site.kz migrate
-```
-
-### Вариант 3. Запуск через Docker Compose (on-premise стенд)
+### 2. Запуск через Docker Compose (в защищённом контуре)
 ```bash
 docker compose up -d
 ```
-После запуска веб-интерфейс доступен по адресу `http://localhost:8080`.
+Сервис доступен по адресу: `http://localhost:8080`.
+
+### 3. Установка на Frappe Bench
+```bash
+bench get-app kontur_region https://github.com/daurenonline/Astana-city.git
+bench --site your-region.kz install-app kontur_region
+bench --site your-region.kz migrate
+```
 
 ---
 
@@ -94,14 +108,8 @@ docker compose up -d
 - **Даурен Болатов** (Астана, Казахстан)
   - Экс-руководитель по развитию бизнеса в ЦА и на Кавказе, **Sergek Group** (AI, Smart City, ITS, B2G);
   - Экс-руководитель аппарата, **РГП «Национальный центр качества дорожных активов»** (21 филиал по РК);
-  - Опыт управления инфраструктурными и ГЧП проектами в **АО «KPPF»** и **АО «Банк Развития Казахстана»**;
+  - Руководитель департамента инфраструктурных и ГЧП проектов, **АО «KPPF»**;
+  - Due diligence и кредитные риски проектов в **АО «Банк Развития Казахстана»**;
   - Master of Professional Studies in Project Management, **Georgetown University** (Болашақ);
   - Финалист **Президентского молодёжного кадрового резерва (ПМКР 2021)**.
   - Контакты: bolatov.db@gmail.com · +7 701 888 03 24
-
----
-
-## 📄 Лицензия
-
-Проект распространяется под открытой лицензией [MIT License](LICENSE).
-Базовый фреймворк: [Frappe Framework](https://github.com/frappe/frappe) (MIT License).
