@@ -488,7 +488,7 @@
 
 <script>
 'use strict';
-const KEY = 'kontur-region-demo-v2';
+const KEY = 'kontur-region-demo-v3';
 const $ = id => document.getElementById(id);
 
 function localDate(d = new Date()) {
@@ -512,14 +512,20 @@ function displayDate(s) {
 // Initial Rich Seed Data with real Geo Coordinates (Astana Region)
 function seed() {
   return {
-    version: 2,
+    version: 3,
     objects: [
       {
         id: 1,
         name: 'Реконструкция водопроводных сетей «Северный»',
         district: 'Алматинский район',
         category: 'ЖКХ',
-        owner: 'А. Сапаров (Управление ТЭК)',
+        owner: 'А. Сапаров',
+        ownerDept: 'Управление ТЭК и водоснабжения',
+        whatsapp: '+77015551201',
+        telegram: 'saparov_tek',
+        topRisk: 'Срыв поставки запорной арматуры (высокий)',
+        complaints: '3 жалобы (e-Otinish: разрытия без ограждения)',
+        contractDoc: 'Договор № 044/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «АстанаВводСервис»',
         budget: 480000000,
         progress: 65,
@@ -533,7 +539,13 @@ function seed() {
         name: 'Строительство комфортной школы на 1200 мест',
         district: 'Есильский район',
         category: 'Образование',
-        owner: 'Б. Касымов (Управление строительства)',
+        owner: 'Б. Касымов',
+        ownerDept: 'Управление строительства',
+        whatsapp: '+77023334418',
+        telegram: 'kasymov_build',
+        topRisk: 'Задержка монтажа вентиляционного оборудования',
+        complaints: '1 обращение (вопрос по сроку набора учеников)',
+        contractDoc: 'Договор № 118/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «BI Global Stroy»',
         budget: 2850000000,
         progress: 82,
@@ -547,7 +559,13 @@ function seed() {
         name: 'Модернизация уличного освещения пр. Туран',
         district: 'Нуринский район',
         category: 'ЖКХ',
-        owner: 'Д. Смагулов (Горсвет)',
+        owner: 'Д. Смагулов',
+        ownerDept: 'ГКП «Горсвет»',
+        whatsapp: '+77078889944',
+        telegram: 'smagulov_light',
+        topRisk: 'Риски отсутствуют (объект завершён)',
+        complaints: 'Обращений нет (принято жителями)',
+        contractDoc: 'Акт ввода № 23-АВ',
         contractor: 'ТОО «ElectroLine»',
         budget: 160000000,
         progress: 100,
@@ -561,7 +579,13 @@ function seed() {
         name: 'Капитальный ремонт городской поликлиники №4',
         district: 'Байконурский район',
         category: 'Здравоохранение',
-        owner: 'Е. Мукашев (Горздрав)',
+        owner: 'Е. Мукашев',
+        ownerDept: 'Управление здравоохранения',
+        whatsapp: '+77017775530',
+        telegram: 'mukashev_zdrav',
+        topRisk: 'Корректировка сметы на медицинскую разводку газов',
+        complaints: '4 жалобы (перенос приема терапевтов)',
+        contractDoc: 'Экспертиза № 44-ЭК',
         contractor: 'ТОО «МедСтройКомплекс»',
         budget: 340000000,
         progress: 20,
@@ -575,7 +599,13 @@ function seed() {
         name: 'Благоустройство набережной и парковой зоны',
         district: 'Сарыаркинский район',
         category: 'Благоустройство',
-        owner: 'К. Ахметов (Аппарат акима)',
+        owner: 'К. Ахметов',
+        ownerDept: 'Аппарат акима района',
+        whatsapp: '+77052221115',
+        telegram: 'akhmetov_park',
+        topRisk: 'Сезонные погодные ограничения по укладке брусчатки',
+        complaints: '6 обращений (просьба обустроить скейт-зону)',
+        contractDoc: 'Договор № 089/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «Зеленстрой KZ»',
         budget: 520000000,
         progress: 40,
@@ -589,7 +619,13 @@ function seed() {
         name: 'Капитальный ремонт путепровода и подъездной дороги',
         district: 'Алматинский район',
         category: 'Дороги',
-        owner: 'Т. Ибраев (Управление автодорог)',
+        owner: 'Т. Ибраев',
+        ownerDept: 'Управление автодорог',
+        whatsapp: '+77014447788',
+        telegram: 'ibrayev_roads',
+        topRisk: 'Срыв графика укладки ЩМА субподрядчиком',
+        complaints: '12 жалоб (пробки на объездной трассе)',
+        contractDoc: 'Договор № 204/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «КазДорМост»',
         budget: 1200000000,
         progress: 55,
@@ -659,14 +695,27 @@ function updateMapMarkers() {
     }).addTo(mapInstance);
 
     const popupContent = `
-      <div style="font-family:sans-serif; min-width:200px;">
-        <strong style="color:var(--navy); font-size:13px;">${o.name}</strong><br>
+      <div style="font-family:sans-serif; min-width:240px; font-size:12px;">
+        <strong style="color:var(--navy); font-size:13.5px;">${o.name}</strong><br>
         <span style="font-size:11px; color:#666;">${o.district} · ${o.category}</span>
         <hr style="margin:6px 0; border:none; border-top:1px solid #eee;">
-        <div style="font-size:12px;"><strong>Бюджет:</strong> ${formatMoney(o.budget)}</div>
-        <div style="font-size:12px;"><strong>Готовность:</strong> ${o.progress}%</div>
-        <div style="font-size:12px;"><strong>Срок:</strong> ${displayDate(o.deadline)}</div>
-        <div style="font-size:12px;"><strong>Куратор:</strong> ${o.owner}</div>
+        <div><strong>Бюджет:</strong> ${formatMoney(o.budget)} (СМР: ${o.progress}%)</div>
+        <div><strong>Срок сдачи:</strong> ${displayDate(o.deadline)}</div>
+        <div><strong>Подрядчик:</strong> ${o.contractor}</div>
+        <div style="margin-top:4px;"><strong>Куратор (ПМ):</strong> ${o.owner} <small style="color:#666;">(${o.ownerDept})</small></div>
+        <div style="margin-top:6px; display:flex; gap:6px;">
+          <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" style="display:inline-block; background:#25d366; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600;">💬 WhatsApp</a>
+          <a href="https://t.me/${o.telegram}" target="_blank" style="display:inline-block; background:#0088cc; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600;">✈️ Telegram</a>
+        </div>
+        <div style="margin-top:6px; background:#fff3cd; border:1px solid #ffeeba; padding:4px 6px; border-radius:4px; font-size:11px; color:#856404;">
+          <strong>⚠️ Риск:</strong> ${o.topRisk}
+        </div>
+        <div style="margin-top:4px; font-size:11px; color:#555;">
+          <strong>📢 e-Otinish:</strong> ${o.complaints}
+        </div>
+        <div style="margin-top:4px; font-size:11px; color:#777;">
+          <strong>📄 Документ:</strong> ${o.contractDoc}
+        </div>
         <div style="margin-top:6px;"><span class="pill ${late ? 'late' : o.status === 'Завершён' ? 'done' : 'active'}">${late ? 'Просрочен' : o.status}</span></div>
       </div>
     `;
@@ -728,7 +777,13 @@ function render() {
       <tr onclick="focusObjectOnMap(${o.id})">
         <td>
           <strong style="color:var(--navy); font-size:13.5px;">${o.name}</strong>
-          <div style="font-size:11px; color:var(--muted);">${o.district} · Подрядчик: ${o.contractor}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:2px;">
+            ${o.district} · Подрядчик: ${o.contractor} · <strong>ПМ:</strong> ${o.owner}
+            <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" onclick="event.stopPropagation()" style="color:#25d366; text-decoration:none; font-weight:700; margin-left:4px;">💬 WA</a>
+            <a href="https://t.me/${o.telegram}" target="_blank" onclick="event.stopPropagation()" style="color:#0088cc; text-decoration:none; font-weight:700; margin-left:4px;">✈️ TG</a>
+          </div>
+          <div style="font-size:11px; color:#c0392b; margin-top:2px;">⚠️ Риск: ${o.topRisk}</div>
+          <div style="font-size:10.5px; color:#555;">📢 ${o.complaints}</div>
         </td>
         <td style="font-weight:600;">${formatMoney(o.budget)}</td>
         <td>
