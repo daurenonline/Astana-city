@@ -397,5 +397,14 @@
       </div>
     </section>
   </div>
+  <script>
+    // Всегда свежая версия: снимаем регистрацию service worker и чистим кэши
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }).catch(function () {});
+    }
+    if (window.caches && caches.keys) {
+      caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); }).catch(function () {});
+    }
+  </script>
 </body>
 </html>

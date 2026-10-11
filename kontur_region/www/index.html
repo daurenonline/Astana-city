@@ -1987,22 +1987,14 @@ $('resetBtn').onclick = () => {
   }
 };
 
-// PWA: service worker (network-first для страниц — изменения видны сразу)
-function registerSW() {
-  if (!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
-    .then((reg) => {
-      reg.update().catch(() => {});
-      reg.addEventListener('updatefound', () => {
-        const nw = reg.installing;
-        if (nw) nw.addEventListener('statechange', () => {
-          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-            nw.postMessage('skip-waiting');
-          }
-        });
-      });
-    })
-    .catch(() => {});
+// Сброс кэша: снимаем регистрацию service worker и чистим кэши, чтобы всегда была свежая версия
+function resetServiceWorkerCaches() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister())).catch(() => {});
+  }
+  if (window.caches && caches.keys) {
+    caches.keys().then((ks) => ks.forEach((k) => caches.delete(k))).catch(() => {});
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -2010,13 +2002,13 @@ document.addEventListener('DOMContentLoaded', () => {
   render();
   renderEVM(selectedObjectId);
   // PWA: register service worker for offline field use
-  registerSW();
+  resetServiceWorkerCaches();
 });
 if (document.readyState !== 'loading') {
   initMap();
   render();
   renderEVM(selectedObjectId);
-  registerSW();
+  resetServiceWorkerCaches();
 }
 </script>
 </body>

@@ -56,7 +56,7 @@
 
 ## 8. Ссылки
 - Демо: https://daurenonline.github.io/Astana-city/
-- Презентация: https://daurenonline.github.io/Astana-city/presentation.html?v=2
+- Презентация: https://daurenonline.github.io/Astana-city/presentation-2026.html
 - Репозиторий (MIT): https://github.com/daurenonline/Astana-city
 
 ## 9. Что ожидаем от акселератора
