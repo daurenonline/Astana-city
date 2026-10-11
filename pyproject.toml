@@ -24,4 +24,6 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/kontur-region/g-ton"
+Homepage = "https://github.com/daurenonline/Astana-city"
+Demo = "https://daurenonline.github.io/Astana-city/"
+Presentation = "https://daurenonline.github.io/Astana-city/presentation.html"

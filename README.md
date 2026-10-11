@@ -7,6 +7,12 @@
 [![Платформа: Frappe](https://img.shields.io/badge/Platform-Frappe%20v15-blue.svg)](https://frappeframework.com/)
 [![Стадия: Pre-Seed](https://img.shields.io/badge/Stage-Pre--Seed%20Demo-green.svg)](#)
 
+## 🌐 Публичные ссылки проекта
+
+- **Репозиторий на GitHub:** [https://github.com/daurenonline/Astana-city](https://github.com/daurenonline/Astana-city)
+- **Живое демо (GitHub Pages):** [https://daurenonline.github.io/Astana-city/](https://daurenonline.github.io/Astana-city/)
+- **Презентация (Pitch Deck):** [https://daurenonline.github.io/Astana-city/presentation.html](https://daurenonline.github.io/Astana-city/presentation.html)
+
 ---
 
 ## 📌 О концепции проекта
