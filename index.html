@@ -275,17 +275,21 @@
     .timeline li:last-child { border-bottom: none; }
     .timeline .tl-icon {
       position: absolute;
-      left: 6px;
+      left: 4px;
       top: 10px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+      width: 24px;
+      height: 18px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: #46617a;
       background: #eef2f6;
     }
+    .timeline li { padding-left: 40px; }
     .timeline .tl-head {
       display: flex;
       justify-content: space-between;
@@ -493,11 +497,11 @@
 
 <header>
   <div>
-    <h1 class="brand-title">🗺️ Контур региона</h1>
+    <h1 class="brand-title">Контур региона</h1>
     <p class="brand-subtitle">Единая цифровая карта и контроль сроков инфраструктурных проектов региона</p>
   </div>
   <div style="display:flex; align-items:center; gap:12px;">
-    <a href="presentation.html" target="_blank" style="color:#fff; font-size:12px; text-decoration:underline;">📊 Pitch Deck (3 слайда)</a>
+    <a href="presentation.html" target="_blank" style="color:#fff; font-size:12px; text-decoration:underline;">Pitch Deck</a>
     <span class="badge-hub">GTON 2026</span>
   </div>
 </header>
@@ -506,9 +510,9 @@
   <div class="notice-bar">
     <span><strong>Демонстрационный GIS-контур:</strong> интерактивная карта, автоматический расчёт просрочек, аудит переноса дедлайнов и выгрузка отчётов для акимата.</span>
     <div>
-      <button class="outline" onclick="toggleBriefing()" style="padding:4px 10px; font-size:11px;">📋 Справка для селектора акима</button>
-      <button class="outline" id="export" style="padding:4px 10px; font-size:11px;">📥 Экспорт JSON</button>
-      <button class="outline" id="exportOcds" style="padding:4px 10px; font-size:11px;">🌐 Экспорт OCDS</button>
+      <button class="outline" onclick="toggleBriefing()" style="padding:4px 10px; font-size:11px;">Справка для селектора</button>
+      <button class="outline" id="export" style="padding:4px 10px; font-size:11px;">Экспорт JSON</button>
+      <button class="outline" id="exportOcds" style="padding:4px 10px; font-size:11px;">Экспорт OCDS</button>
     </div>
   </div>
 
@@ -583,7 +587,7 @@
         </select>
         <select id="filterStatus">
           <option value="all">Все статусы</option>
-          <option value="late">🔴 Только просроченные</option>
+          <option value="late">Только просроченные</option>
           <option value="В работе">В работе</option>
           <option value="Планирование">Планирование</option>
           <option value="Завершён">Завершённые</option>
@@ -613,7 +617,7 @@
     <section class="panel">
       <div class="panel-header">
         <div>
-          <h2 class="panel-title">📜 История и полный аудит проекта</h2>
+          <h2 class="panel-title">История и аудит проекта</h2>
           <span style="font-size:11px; color:var(--muted);" id="timelineSubtitle">Журнал событий выбранного объекта</span>
         </div>
         <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
@@ -627,7 +631,7 @@
     <section class="panel" id="evmSection">
       <div class="panel-header">
         <div>
-          <h2 class="panel-title" id="evmTitle">📊 Анализ EVM (Метод освоенного объёма)</h2>
+          <h2 class="panel-title" id="evmTitle">Анализ EVM (Метод освоенного объёма)</h2>
           <span style="font-size:11px; color:var(--muted);" id="evmSubtitle">Выберите объект в реестре для расчета индексов SPI, CPI и прогноза</span>
         </div>
         <button id="resetBtn" style="padding:4px 8px; font-size:11px;">Сброс данных</button>
@@ -641,7 +645,7 @@
     <section class="panel">
       <div class="panel-header">
         <div>
-          <h2 class="panel-title">🎯 Реестр рисков (Risk Register)</h2>
+          <h2 class="panel-title">Реестр рисков (Risk Register)</h2>
           <span style="font-size:11px; color:var(--muted);" id="riskSubtitle">Оценка: вероятность × влияние</span>
         </div>
         <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
@@ -668,7 +672,7 @@
     <section class="panel">
       <div class="panel-header">
         <div>
-          <h2 class="panel-title">🚨 Центр уведомлений и эскалации</h2>
+          <h2 class="panel-title">Центр уведомлений и эскалации</h2>
           <span style="font-size:11px; color:var(--muted);">Автоматические сигналы по правилам риска</span>
         </div>
       </div>
@@ -681,7 +685,7 @@
     <section class="panel">
       <div class="panel-header">
         <div>
-          <h2 class="panel-title">📁 Документы проекта (CDE · ISO 19650)</h2>
+          <h2 class="panel-title">Документы проекта (CDE · ISO 19650)</h2>
           <span style="font-size:11px; color:var(--muted);" id="docsSubtitle">Единая среда данных выбранного объекта</span>
         </div>
         <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
@@ -710,7 +714,7 @@
     <section class="panel">
       <div class="panel-header">
         <div>
-          <h2 class="panel-title">❓ RFI / Submittals с контролем SLA</h2>
+          <h2 class="panel-title">RFI / Submittals с контролем SLA</h2>
           <span style="font-size:11px; color:var(--muted);" id="rfiSubtitle">Запросы информации и сроки ответа заказчика</span>
         </div>
         <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
@@ -735,6 +739,40 @@
       </div>
     </section>
   </div>
+
+  <!-- ABOUT THE AUTHOR / COPYRIGHT -->
+  <section class="panel" id="aboutAuthor" style="margin-top:20px;">
+    <div class="panel-header">
+      <h2 class="panel-title">Об авторе и правовая информация</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div>
+        <p style="margin:0 0 8px; font-size:14px; font-weight:700; color:var(--navy);">Даурен Болатов</p>
+        <p style="margin:0 0 10px; font-size:12.5px; color:#4a5b6b;">
+          Автор и правообладатель проекта «Контур региона». Специализация — управление капитальными
+          инфраструктурными проектами и методология EVM (Earned Value Management).
+          Master of Professional Studies in Project Management, Georgetown University.
+        </p>
+        <p style="margin:0; font-size:12.5px;">
+          <strong>Telegram:</strong> <a href="https://t.me/tlgrm_invest" target="_blank" style="color:var(--teal); text-decoration:none;">@tlgrm_invest</a><br>
+          <strong>Мобильный:</strong> <a href="tel:+77018880324" style="color:var(--teal); text-decoration:none;">+7 701 888 03 24</a>
+        </p>
+      </div>
+      <div>
+        <p style="margin:0 0 8px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted);">Правовая информация</p>
+        <p style="margin:0 0 8px; font-size:12px; color:#4a5b6b;">
+          © 2026 Даурен Болатов. Все права защищены.<br>
+          Программный код распространяется под лицензией MIT.
+        </p>
+        <p style="margin:0; font-size:12px; color:#4a5b6b;">
+          Данная версия — демонстрационный прототип на синтетических (тестовых) данных.
+          Она не содержит сведений о реальных объектах, организациях или физических лицах и не
+          является промышленной информационной системой. Названия организаций, подрядчиков и
+          контакты на карточках объектов приведены исключительно для демонстрации интерфейса.
+        </p>
+      </div>
+    </div>
+  </section>
 </main>
 
 <!-- Edit Dialog -->
@@ -1201,17 +1239,17 @@ function updateMapMarkers() {
         <div><strong>Подрядчик:</strong> ${o.contractor}</div>
         <div style="margin-top:4px;"><strong>Куратор (ПМ):</strong> ${o.owner} <small style="color:#666;">(${o.ownerDept})</small></div>
         <div style="margin-top:6px; display:flex; gap:6px;">
-          <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" style="display:inline-block; background:#25d366; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600;">💬 WhatsApp</a>
-          <a href="https://t.me/${o.telegram}" target="_blank" style="display:inline-block; background:#0088cc; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600;">✈️ Telegram</a>
+          <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" style="display:inline-block; background:#25d366; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600;">WhatsApp</a>
+          <a href="https://t.me/${o.telegram}" target="_blank" style="display:inline-block; background:#0088cc; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600;">Telegram</a>
         </div>
         <div style="margin-top:6px; background:#fff3cd; border:1px solid #ffeeba; padding:4px 6px; border-radius:4px; font-size:11px; color:#856404;">
-          <strong>⚠️ Риск:</strong> ${o.topRisk}
+          <strong>Риск:</strong> ${o.topRisk}
         </div>
         <div style="margin-top:4px; font-size:11px; color:#555;">
-          <strong>📢 e-Otinish:</strong> ${o.complaints}
+          <strong>e-Otinish:</strong> ${o.complaints}
         </div>
         <div style="margin-top:4px; font-size:11px; color:#777;">
-          <strong>📄 Документ:</strong> ${o.contractDoc}
+          <strong>Документ:</strong> ${o.contractDoc}
         </div>
         <div style="margin-top:6px;"><span class="pill ${late ? 'late' : o.status === 'Завершён' ? 'done' : 'active'}">${late ? 'Просрочен' : o.status}</span></div>
       </div>
@@ -1294,7 +1332,7 @@ function renderEVM(id) {
   if (cpiVal < 0.9) { cpiClass = 'bad'; cpiText = 'Перерасход'; }
   else if (cpiVal < 1.0) { cpiClass = 'warn'; cpiText = 'Внимание'; }
 
-  $('evmTitle').innerHTML = `📊 EVM-анализ: <strong>${o.name}</strong>`;
+  $('evmTitle').innerHTML = `EVM-анализ: <strong>${o.name}</strong>`;
   $('evmSubtitle').innerHTML = `${o.district} · Подрядчик: <strong>${o.contractor}</strong>`;
 
   const html = `
@@ -1303,8 +1341,8 @@ function renderEVM(id) {
         <span style="font-size:12px; color:var(--muted);">Проектный менеджер (Куратор): <strong>${o.owner}</strong> (${o.ownerDept})</span>
       </div>
       <div style="display:flex; gap:6px;">
-        <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" style="background:#25d366; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">💬 Написать в WhatsApp</a>
-        <a href="https://t.me/${o.telegram}" target="_blank" style="background:#0088cc; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">✈️ Telegram</a>
+        <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" style="background:#25d366; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">WhatsApp</a>
+        <a href="https://t.me/${o.telegram}" target="_blank" style="background:#0088cc; color:#fff; text-decoration:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">Telegram</a>
       </div>
     </div>
 
@@ -1336,7 +1374,7 @@ function renderEVM(id) {
     <div style="background:#ffffff; border:1px solid var(--line); border-radius:8px; padding:12px; margin-top:10px;">
       <div class="evm-bar-row">
         <div class="evm-bar-labels">
-          <span>📅 <strong>PV (Плановый календарный график на сегодня):</strong></span>
+          <span><strong>PV (Плановый календарный график на сегодня):</strong></span>
           <strong>${PV_pct}% (${formatMoney(PV)})</strong>
         </div>
         <div class="evm-bar-track"><div class="evm-bar-fill" style="width:${PV_pct}%; background:#2980b9;"></div></div>
@@ -1344,7 +1382,7 @@ function renderEVM(id) {
 
       <div class="evm-bar-row">
         <div class="evm-bar-labels">
-          <span>🏗️ <strong>EV (Освоенный физический объём СМР):</strong></span>
+          <span><strong>EV (Освоенный физический объём СМР):</strong></span>
           <strong>${EV_pct}% (${formatMoney(EV)})</strong>
         </div>
         <div class="evm-bar-track"><div class="evm-bar-fill" style="width:${EV_pct}%; background:var(--teal);"></div></div>
@@ -1352,7 +1390,7 @@ function renderEVM(id) {
 
       <div class="evm-bar-row">
         <div class="evm-bar-labels">
-          <span>💳 <strong>AC (Кассовые выплаты подрядчику):</strong></span>
+          <span><strong>AC (Кассовые выплаты подрядчику):</strong></span>
           <strong>${AC_pct}% (${formatMoney(AC)})</strong>
         </div>
         <div class="evm-bar-track"><div class="evm-bar-fill" style="width:${AC_pct}%; background:#e67e22;"></div></div>
@@ -1361,7 +1399,7 @@ function renderEVM(id) {
 
     <!-- Predictive Akimat Alert -->
     <div style="margin-top:10px; background:${late ? '#fbeae8' : '#eaf8f0'}; border:1px solid ${late ? '#f6c5c0' : '#c1edd4'}; border-radius:8px; padding:10px 14px; font-size:12px; color:var(--navy);">
-      <strong>🔍 Предиктивный вывод экспертной системы:</strong>
+      <strong>Предиктивный вывод экспертной системы:</strong>
       ${spiVal < 1.0 ? `
         Обнаружен разрыв между физическим выполнением СМР (${EV_pct}%) и календарным планом (${PV_pct}%). Отставание составляет ${(PV_pct - EV_pct)}% проектного объёма. При текущем индексе SPI=${SPI} прогнозируемая задержка ввода составит от <strong>${late ? 45 : 25} дней</strong>. Рекомендация куратору: затребовать актуализированный нагоночный график от подрядчика «${o.contractor}».
       ` : `
@@ -1371,11 +1409,13 @@ function renderEVM(id) {
 
     <!-- S-Curve (PMI) -->
     <div style="margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
-      <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">📈 S-кривая освоения (PV / EV / AC, прогноз до сдачи)</div>
+      <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">S-кривая освоения (PV / EV / AC, прогноз до сдачи)</div>
       <canvas id="evmChart" width="720" height="220" style="width:100%; height:auto;"></canvas>
       <div style="display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin-top:4px; flex-wrap:wrap;">
-        <span>▬ PV (план)</span><span style="color:#2a9d8f;">▬ EV (факт)</span><span style="color:#e67e22;">▬ AC (выплаты)</span>
-        <span>· · · Прогноз даты сдачи: <strong>${forecastDate(o, m)}</strong></span>
+        <span><span style="display:inline-block;width:18px;height:3px;background:#2980b9;vertical-align:middle;margin-right:4px;"></span>PV (план)</span>
+        <span><span style="display:inline-block;width:18px;height:3px;background:#2a9d8f;vertical-align:middle;margin-right:4px;"></span>EV (факт)</span>
+        <span><span style="display:inline-block;width:18px;height:3px;background:#e67e22;vertical-align:middle;margin-right:4px;"></span>AC (выплаты)</span>
+        <span>Прогноз даты сдачи: <strong>${forecastDate(o, m)}</strong></span>
       </div>
     </div>
   `;
@@ -1508,11 +1548,11 @@ function render() {
           <strong style="color:var(--navy); font-size:13.5px;">${o.name}</strong>
           <div style="font-size:11px; color:var(--muted); margin-top:2px;">
             ${o.district} · Подрядчик: ${o.contractor} · <strong>ПМ:</strong> ${o.owner}
-            <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" onclick="event.stopPropagation()" style="color:#25d366; text-decoration:none; font-weight:700; margin-left:4px;">💬 WA</a>
-            <a href="https://t.me/${o.telegram}" target="_blank" onclick="event.stopPropagation()" style="color:#0088cc; text-decoration:none; font-weight:700; margin-left:4px;">✈️ TG</a>
+            <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" onclick="event.stopPropagation()" style="color:#25d366; text-decoration:none; font-weight:700; margin-left:4px;">WA</a>
+            <a href="https://t.me/${o.telegram}" target="_blank" onclick="event.stopPropagation()" style="color:#0088cc; text-decoration:none; font-weight:700; margin-left:4px;">TG</a>
           </div>
-          <div style="font-size:11px; color:#c0392b; margin-top:2px;">⚠️ Риск: ${o.topRisk}</div>
-          <div style="font-size:10.5px; color:#555;">📢 ${o.complaints}</div>
+          <div style="font-size:11px; color:#c0392b; margin-top:2px;">Риск: ${o.topRisk}</div>
+          <div style="font-size:10.5px; color:#555;">${o.complaints}</div>
         </td>
         <td style="font-weight:600;">${formatMoney(o.budget)}</td>
         <td>
@@ -1542,15 +1582,15 @@ function render() {
 
 // ============ TIMELINE / AUDIT FEED ============
 const EVENT_TYPES = {
-  status:       { icon: '🔄', label: 'Статус' },
-  deadline:     { icon: '📅', label: 'Срок' },
-  meeting:      { icon: '👥', label: 'Штаб / совещание' },
-  visit:        { icon: '🚗', label: 'Выезд' },
-  contractor:   { icon: '🤝', label: 'Подрядчик' },
-  prescription: { icon: '❗', label: 'Предписание' },
-  payment:      { icon: '💰', label: 'Финансы' },
-  complaint:    { icon: '📢', label: 'Обращение' },
-  photo:        { icon: '📷', label: 'Фотофиксация' }
+  status:       { icon: 'СТ', label: 'Статус' },
+  deadline:     { icon: 'СР', label: 'Срок' },
+  meeting:      { icon: 'ШТ', label: 'Штаб / совещание' },
+  visit:        { icon: 'ВП', label: 'Выезд' },
+  contractor:   { icon: 'ПД', label: 'Подрядчик' },
+  prescription: { icon: 'ПР', label: 'Предписание' },
+  payment:      { icon: 'ФН', label: 'Финансы' },
+  complaint:    { icon: 'ОБ', label: 'Обращение' },
+  photo:        { icon: 'ФФ', label: 'Фотофиксация' }
 };
 let activeTypeFilter = 'all';
 
@@ -1587,7 +1627,7 @@ function renderTimeline() {
     const obj = state.objects.find(x => x.id === e.objectId);
     const actionsHtml = (e.actions && e.actions.length) ? `
       <div class="actions-block">
-        <div class="ab-title">📋 Поручения по итогам (${e.actions.filter(a => a.done).length}/${e.actions.length} выполнено)</div>
+        <div class="ab-title">Поручения по итогам (${e.actions.filter(a => a.done).length}/${e.actions.length} выполнено)</div>
         ${e.actions.map((a, k) => `
           <label class="action-item ${a.done ? 'done' : ''}">
             <input type="checkbox" ${a.done ? 'checked' : ''} onchange="toggleAction(${e.id}, ${k})">
@@ -1608,7 +1648,7 @@ function renderTimeline() {
         </div>
         <div class="tl-body">${e.text}</div>
         <div class="tl-meta">
-          ${e.who ? '👤 ' + e.who : ''}${e.who && e.place ? ' · ' : ''}${e.place ? '📍 ' + e.place : ''}
+          ${e.who ? 'Кто: ' + e.who : ''}${e.who && e.place ? ' · ' : ''}${e.place ? 'Место: ' + e.place : ''}
         </div>
         ${actionsHtml}
       </li>
@@ -1658,7 +1698,7 @@ function renderRisks() {
         <td>
           <strong>${r.title}</strong>
           ${showAll && obj ? `<div style="font-size:10px; color:var(--muted); margin-top:1px;">${obj.name}</div>` : ''}
-          <div style="font-size:10px; color:#777; margin-top:3px;">➡ ${r.mitigation}</div>
+          <div style="font-size:10px; color:#777; margin-top:3px;">План реагирования: ${r.mitigation}</div>
         </td>
         <td style="text-align:center;">${r.probability}</td>
         <td style="text-align:center;">${r.impact}</td>
@@ -1736,8 +1776,8 @@ function renderAlerts() {
         <div class="alert-body">${a.body}</div>
         <div class="alert-body" style="font-size:10.5px; color:var(--muted);">${escLabel[a.level]}</div>
         <div class="alert-actions">
-          ${a.whatsapp ? `<a href="https://wa.me/${a.whatsapp.replace(/[^0-9]/g, '')}" target="_blank">💬 Куратору (WhatsApp)</a>` : ''}
-          ${a.telegram ? `<a href="https://t.me/${a.telegram}" target="_blank">✈️ Telegram</a>` : ''}
+          ${a.whatsapp ? `<a href="https://wa.me/${a.whatsapp.replace(/[^0-9]/g, '')}" target="_blank">Куратору: WhatsApp</a>` : ''}
+          ${a.telegram ? `<a href="https://t.me/${a.telegram}" target="_blank">Telegram</a>` : ''}
           <button onclick="selectObject(${a.objectId})">Открыть объект</button>
         </div>
       </div>`;
@@ -1792,7 +1832,7 @@ function renderRfis() {
     const obj = state.objects.find(x => x.id === r.objectId);
     return `
       <tr>
-        <td><strong>${r.num}</strong> · ${r.subject}${showAll && obj ? `<div style="font-size:10px;color:var(--muted);">${obj.name}</div>` : ''}${r.answer ? `<div style="font-size:10px;color:#1e7a4d;">↳ ${r.answer}</div>` : ''}</td>
+        <td><strong>${r.num}</strong> · ${r.subject}${showAll && obj ? `<div style="font-size:10px;color:var(--muted);">${obj.name}</div>` : ''}${r.answer ? `<div style="font-size:10px;color:#1e7a4d;">Ответ: ${r.answer}</div>` : ''}</td>
         <td style="font-size:11px;">${r.raisedBy}<div style="color:var(--muted);">→ ${r.assignedTo}</div></td>
         <td>${displayDate(r.dueDate)}<div style="font-size:10px;color:var(--muted);">от ${displayDate(r.raisedDate)}</div></td>
         <td><span style="color:${st.c}; background:${st.bg}; padding:1px 7px; border-radius:10px; font-size:10.5px; font-weight:600;">${st.label}</span></td>
