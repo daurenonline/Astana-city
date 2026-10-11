@@ -81,7 +81,7 @@
 
 ### Поле 10: Публичная ссылка на презентацию и прототип
 > **Публичная презентация (3 слайда):**  
-> https://daurenonline.github.io/Astana-city/presentation.html
+> https://daurenonline.github.io/Astana-city/presentation.html?v=2
 > 
 > **Живой интерактивный прототип (Демо):**  
 > https://daurenonline.github.io/Astana-city/
