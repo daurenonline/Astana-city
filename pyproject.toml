@@ -1,0 +1,27 @@
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "kontur_region"
+authors = [
+    { name = "Dauren Bolatov", email = "bolatov.db@gmail.com" }
+]
+description = "Контур региона — Единая система оперативного контроля сроков инфраструктурных проектов региона (GovTech / GTON 2026)"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    # "frappe" dependency is provided by the Frappe Bench environment
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Framework :: Frappe",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License"
+]
+
+[project.urls]
+Homepage = "https://github.com/kontur-region/g-ton"

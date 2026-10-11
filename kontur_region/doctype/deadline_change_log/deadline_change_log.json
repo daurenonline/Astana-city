@@ -1,0 +1,102 @@
+{
+ "actions": [],
+ "creation": "2026-10-11 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "infrastructure_object",
+  "object_name",
+  "changed_by",
+  "change_time",
+  "column_break_log",
+  "old_deadline",
+  "new_deadline",
+  "reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "infrastructure_object",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Объект",
+   "options": "Infrastructure Object",
+   "reqd": 1
+  },
+  {
+   "fieldname": "object_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Наименование",
+   "read_only": 1
+  },
+  {
+   "fieldname": "changed_by",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Кто изменил",
+   "read_only": 1
+  },
+  {
+   "fieldname": "change_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Дата и время",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_log",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "old_deadline",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Прежний срок",
+   "read_only": 1
+  },
+  {
+   "fieldname": "new_deadline",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Новый срок",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Small Text",
+   "label": "Причина изменения срока"
+  }
+ ],
+ "modified": "2026-10-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Kontur Region",
+ "name": "Deadline Change Log",
+ "naming_rule": "Expression",
+ "autoname": "format:LOG-{#####}",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager"
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager"
+  },
+  {
+   "read": 1,
+   "role": "Projects User"
+  }
+ ],
+ "read_only": 1,
+ "sort_field": "change_time",
+ "sort_order": "DESC",
+ "track_changes": 0
+}

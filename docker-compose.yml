@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  # Backend Frappe / Python application server
+  backend:
+    image: frappe/frappe-worker:v15.30.0
+    restart: unless-stopped
+    environment:
+      - SITE_NAME=kontur.local
+      - DB_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=frappe_secret_pass
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites
+      - ./kontur_region:/home/frappe/frappe-bench/apps/kontur_region/kontur_region
+    depends_on:
+      - db
+      - redis-cache
+      - redis-queue
+
+  # MariaDB Database (Strictly hosted on-premise inside KZ)
+  db:
+    image: mariadb:10.6
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=frappe_secret_pass
+    volumes:
+      - db-data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+  # Redis for cache
+  redis-cache:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+
+  # Redis for background job queues
+  redis-queue:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+
+  # Web frontend and reverse proxy (Nginx)
+  frontend:
+    image: frappe/frappe-nginx:v15.30.0
+    restart: unless-stopped
+    environment:
+      - BACKEND=backend:8000
+      - FRAPPE_PY=backend:8000
+      - UWSGI_PORT=8000
+    volumes:
+      - sites-vol:/home/frappe/frappe-bench/sites
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:
+  sites-vol:

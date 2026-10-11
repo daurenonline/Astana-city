@@ -1,0 +1,166 @@
+{
+ "actions": [],
+ "creation": "2026-10-11 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_section",
+  "object_name",
+  "district",
+  "category",
+  "column_break_main",
+  "owner_name",
+  "status",
+  "deadline",
+  "is_overdue",
+  "accounting_section",
+  "budget_kzt",
+  "contractor",
+  "description",
+  "audit_trail_section",
+  "deadline_change_count"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Основная информация"
+  },
+  {
+   "fieldname": "object_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Наименование объекта",
+   "reqd": 1
+  },
+  {
+   "fieldname": "district",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Район / Город",
+   "options": "Region District",
+   "reqd": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Категория",
+   "options": "ЖКХ и водоснабжение\nДороги и транспорт\nОбразование\nЗдравоохранение\nБлагоустройство\nСпорт и культура\nПрочее"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Ответственный куратор",
+   "reqd": 1
+  },
+  {
+   "default": "В работе",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Статус",
+   "options": "Планирование\nВ работе\nПриостановлен\nЗавершён",
+   "reqd": 1
+  },
+  {
+   "fieldname": "deadline",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Плановый срок завершения",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_overdue",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Просрочен",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Финансирование и подрядчик"
+  },
+  {
+   "fieldname": "budget_kzt",
+   "fieldtype": "Currency",
+   "label": "Бюджет (тенге)"
+  },
+  {
+   "fieldname": "contractor",
+   "fieldtype": "Data",
+   "label": "Генеральный подрядчик"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Краткое описание работ"
+  },
+  {
+   "fieldname": "audit_trail_section",
+   "fieldtype": "Section Break",
+   "label": "История и аудит"
+  },
+  {
+   "default": "0",
+   "fieldname": "deadline_change_count",
+   "fieldtype": "Int",
+   "label": "Количество переносов срока",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "group": "Аудит",
+   "link_doctype": "Deadline Change Log",
+   "link_fieldname": "infrastructure_object"
+  }
+ ],
+ "modified": "2026-10-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Kontur Region",
+ "name": "Infrastructure Object",
+ "naming_rule": "Expression",
+ "autoname": "format:OBJ-{#####}",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Projects User"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
