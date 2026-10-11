@@ -384,11 +384,13 @@
         <input id="search" type="search" placeholder="Поиск объекта, района, подрядчика...">
         <select id="filterCategory">
           <option value="all">Все категории</option>
+          <option value="Образование">Школы и детсады (Образование)</option>
+          <option value="Дороги и развязки">Дороги и развязки</option>
+          <option value="Мосты и путепроводы">Мосты и путепроводы</option>
           <option value="ЖКХ">ЖКХ и водоснабжение</option>
-          <option value="Дороги">Дороги и транспорт</option>
-          <option value="Образование">Образование</option>
           <option value="Здравоохранение">Здравоохранение</option>
-          <option value="Благоустройство">Благоустройство</option>
+          <option value="Спорт и культура">Спорт и культура</option>
+          <option value="Благоустройство">Благоустройство и парки</option>
         </select>
         <select id="filterStatus">
           <option value="all">Все статусы</option>
@@ -488,7 +490,7 @@
 
 <script>
 'use strict';
-const KEY = 'kontur-region-demo-v3';
+const KEY = 'kontur-region-demo-v4';
 const $ = id => document.getElementById(id);
 
 function localDate(d = new Date()) {
@@ -512,11 +514,11 @@ function displayDate(s) {
 // Initial Rich Seed Data with real Geo Coordinates (Astana Region)
 function seed() {
   return {
-    version: 3,
+    version: 4,
     objects: [
       {
         id: 1,
-        name: 'Реконструкция водопроводных сетей «Северный»',
+        name: 'Реконструкция магистрального водопровода «Северный»',
         district: 'Алматинский район',
         category: 'ЖКХ',
         owner: 'А. Сапаров',
@@ -616,9 +618,9 @@ function seed() {
       },
       {
         id: 6,
-        name: 'Капитальный ремонт путепровода и подъездной дороги',
+        name: 'Капитальный ремонт путепровода по ул. Коргалжын',
         district: 'Алматинский район',
-        category: 'Дороги',
+        category: 'Мосты и путепроводы',
         owner: 'Т. Ибраев',
         ownerDept: 'Управление автодорог',
         whatsapp: '+77014447788',
@@ -633,6 +635,86 @@ function seed() {
         status: 'В работе',
         lat: 51.1850,
         lng: 71.4850
+      },
+      {
+        id: 7,
+        name: 'Строительство 2-уровневой транспортной развязки пр. Тәуелсіздік / ул. Қалдаяқова',
+        district: 'Алматинский район',
+        category: 'Дороги и развязки',
+        owner: 'М. Жолдасов',
+        ownerDept: 'Управление пассажирского транспорта и автодорог',
+        whatsapp: '+77019992233',
+        telegram: 'zholdasov_roads',
+        topRisk: 'Перенос высоковольтных кабельных сетей и теплотрассы',
+        complaints: '18 обращений (просьба скорректировать светофорные фазы)',
+        contractDoc: 'Договор № РАЗВ-01/2026 (goszakup.gov.kz)',
+        contractor: 'ТОО «Мостоотряд-1»',
+        budget: 4200000000,
+        progress: 48,
+        deadline: offset(120),
+        status: 'В работе',
+        lat: 51.1410,
+        lng: 71.4680
+      },
+      {
+        id: 8,
+        name: 'Строительство автомобильного моста через р. Есиль по ул. Кенесары',
+        district: 'Сарыаркинский район',
+        category: 'Мосты и путепроводы',
+        owner: 'С. Нурланов',
+        ownerDept: 'Управление строительства',
+        whatsapp: '+77021118855',
+        telegram: 'nurlanov_bridge',
+        topRisk: 'Задержка поставки металлоконструкций пролётных строений',
+        complaints: '8 жалоб (шум от буровых установок в ночное время)',
+        contractDoc: 'Договор № МОСТ-77 (goszakup.gov.kz)',
+        contractor: 'ТОО «Казахдорстрой»',
+        budget: 5600000000,
+        progress: 32,
+        deadline: offset(-12),
+        status: 'В работе',
+        lat: 51.1680,
+        lng: 71.4280
+      },
+      {
+        id: 9,
+        name: 'Строительство государственного детского ясли-сада на 280 мест',
+        district: 'Байконурский район',
+        category: 'Образование',
+        owner: 'Г. Омарова',
+        ownerDept: 'Управление образования',
+        whatsapp: '+77085556677',
+        telegram: 'omarova_edu',
+        topRisk: 'Подключение к наружным сетям теплоснабжения ТЭЦ-3',
+        complaints: '5 обращений (вопросы по электронной очереди)',
+        contractDoc: 'Договор № САД-280 (goszakup.gov.kz)',
+        contractor: 'ТОО «Astana Elite Build»',
+        budget: 920000000,
+        progress: 78,
+        deadline: offset(35),
+        status: 'В работе',
+        lat: 51.1820,
+        lng: 71.4420
+      },
+      {
+        id: 10,
+        name: 'Строительство физкультурно-оздоровительного комплекса (ФОК) с бассейном',
+        district: 'Нуринский район',
+        category: 'Спорт и культура',
+        owner: 'Ж. Бекетов',
+        ownerDept: 'Управление физической культуры и спорта',
+        whatsapp: '+77013337799',
+        telegram: 'beketov_sport',
+        topRisk: 'Повторное прохождение госэкспертизы по разделу водоочистки',
+        complaints: '2 обращения (пожелания по спортивным секциям)',
+        contractDoc: 'ТЭО № 12-ФОК',
+        contractor: 'ТОО «СпортСтройСервис»',
+        budget: 1450000000,
+        progress: 15,
+        deadline: offset(240),
+        status: 'Планирование',
+        lat: 51.1180,
+        lng: 71.3850
       }
     ],
     history: []
