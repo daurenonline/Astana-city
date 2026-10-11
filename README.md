@@ -1,0 +1,107 @@
+# Контур региона (GTON 2026)
+
+**Единая система оперативного контроля сроков инфраструктурных проектов региона**  
+*Проект подготовлен для акселератора GTON 2026 (Astana Hub, трек GovTech).*
+
+[![Лицензия: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
+[![Платформа: Frappe](https://img.shields.io/badge/Platform-Frappe%20v15-blue.svg)](https://frappeframework.com/)
+[![Стадия: Pre-Seed](https://img.shields.io/badge/Stage-Pre--Seed%20Demo-green.svg)](#)
+
+## 🌐 Публичные ссылки проекта
+
+- **Репозиторий на GitHub:** [https://github.com/daurenonline/Astana-city](https://github.com/daurenonline/Astana-city)
+- **Живое демо (GitHub Pages):** [https://daurenonline.github.io/Astana-city/](https://daurenonline.github.io/Astana-city/)
+- **Презентация (Pitch Deck):** [https://daurenonline.github.io/Astana-city/presentation.html](https://daurenonline.github.io/Astana-city/presentation.html)
+
+---
+
+## 📌 О концепции проекта
+
+«Контур региона» — это прикладной инструмент для региональных и районных акиматов, позволяющий навести прозрачный порядок в мониторинге инфраструктурных строек и ремонтов (водопроводы, теплосети, школы, больницы, дороги).
+
+### Ключевые возможности:
+1. **Единый реестр инфраструктурных объектов:** сводный статус по всем проектам региона в одном окне.
+2. **Автоматический расчёт просрочек:** система непрерывно сверяет плановые даты с календарем и подсвечивает риски до наступления критического момента.
+3. **Неизменяемый аудит-журнал (Deadline Change Log):** любая корректировка дедлайна протоколируется (автор, время, старый срок, новый срок, обоснование).
+4. **Сводка для руководства (Dashboard):** ключевые метрики (всего / в работе / просрочено / закрыто) доступны за 2 секунды.
+
+---
+
+## 🛠 Технологический стек: Frappe Framework (MIT)
+
+Серверная версия проекта спроектирована на базе **Frappe Framework** под лицензией **MIT**:
+- **Python / MariaDB / PostgreSQL / Redis / Nginx**
+- **Полная локализация данных в Казахстане** (on-premise развёртывание в контуре акимата или ЦОД АО «НИТ» / PS.kz).
+- **Нулевые затраты на лицензии:** Open Source базис исключает санкционные и валютные риски.
+
+### Структура репозитория (Frappe App):
+```text
+g-ton/
+├── kontur_region/                  # Пакет Frappe App
+│   ├── hooks.py                    # Хуки Frappe (крон-задачи, роутинг, события)
+│   ├── modules.txt                 # Модули приложения
+│   ├── api.py                      # REST API эндпоинты (/api/method/kontur_region.api.*)
+│   ├── tasks.py                    # Ежедневный пересчёт просрочек (scheduler)
+│   ├── doctype/                    # Схемы DocType:
+│   │   ├── infrastructure_object/  # Объект инфраструктуры (свойства, сроки, статус)
+│   │   ├── deadline_change_log/    # Аудит-журнал переноса дедлайнов
+│   │   └── region_district/        # Справочник районов / городов
+│   └── www/                        # Веб-страницы портала:
+│       ├── index.html              # Интерактивный веб-дашборд
+│       └── presentation.html       # 3-слайдовый Pitch Deck
+├── index.html                      # Корневой автономный прототип (для GitHub Pages)
+├── presentation.html               # 3-слайдовый Pitch Deck (печать в PDF)
+├── docker-compose.yml              # Запуск полного Frappe-стека в Docker
+├── pyproject.toml                  # Метаданные пакета Python
+├── GTON_APPLICATION_PACK.md        # Готовые тексты заявки для Astana Hub
+├── LICENSE                         # Лицензия MIT
+└── README.md                       # Документация проекта
+```
+
+---
+
+## 🚀 Варианты запуска
+
+### Вариант 1. Автономный демонстрационный интерфейс (0 секунд, без зависимостей)
+Просто откройте файл `index.html` в любом браузере:
+- Работает полностью автономно (HTML + Vanilla JS + CSS).
+- Сохраняет данные в локальном хранилище браузера (`localStorage`).
+- Позволяет смоделировать перенос срока $\rightarrow$ авторасчёт просрочки $\rightarrow$ журнал изменений $\rightarrow$ экспорт JSON.
+
+### Вариант 2. Развёртывание на Frappe Bench
+Для установки приложения в существующий инстанс Frappe v15:
+```bash
+# 1. Скачиваем приложение в bench
+bench get-app kontur_region https://github.com/your-org/g-ton.git
+
+# 2. Устанавливаем на нужный сайт
+bench --site your-site.kz install-app kontur_region
+
+# 3. Выполняем миграции DocType
+bench --site your-site.kz migrate
+```
+
+### Вариант 3. Запуск через Docker Compose (on-premise стенд)
+```bash
+docker compose up -d
+```
+После запуска веб-интерфейс доступен по адресу `http://localhost:8080`.
+
+---
+
+## 👥 Основатель проекта
+
+- **Даурен Болатов** (Астана, Казахстан)
+  - Экс-руководитель по развитию бизнеса в ЦА и на Кавказе, **Sergek Group** (AI, Smart City, ITS, B2G);
+  - Экс-руководитель аппарата, **РГП «Национальный центр качества дорожных активов»** (21 филиал по РК);
+  - Опыт управления инфраструктурными и ГЧП проектами в **АО «KPPF»** и **АО «Банк Развития Казахстана»**;
+  - Master of Professional Studies in Project Management, **Georgetown University** (Болашақ);
+  - Финалист **Президентского молодёжного кадрового резерва (ПМКР 2021)**.
+  - Контакты: bolatov.db@gmail.com · +7 701 888 03 24
+
+---
+
+## 📄 Лицензия
+
+Проект распространяется под открытой лицензией [MIT License](LICENSE).
+Базовый фреймворк: [Frappe Framework](https://github.com/frappe/frappe) (MIT License).
