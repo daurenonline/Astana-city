@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Контур региона — Единая карта инфраструктурных объектов</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#0e2538">
   <!-- Leaflet CSS & JS for OpenStreetMap Interactive GIS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -505,6 +508,7 @@
     <div>
       <button class="outline" onclick="toggleBriefing()" style="padding:4px 10px; font-size:11px;">📋 Справка для селектора акима</button>
       <button class="outline" id="export" style="padding:4px 10px; font-size:11px;">📥 Экспорт JSON</button>
+      <button class="outline" id="exportOcds" style="padding:4px 10px; font-size:11px;">🌐 Экспорт OCDS</button>
     </div>
   </div>
 
@@ -671,6 +675,66 @@
       <div id="alertsBody"></div>
     </section>
   </div>
+
+  <!-- DOCUMENTS (CDE) & RFI/SUBMITTALS -->
+  <div class="full-row">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">📁 Документы проекта (CDE · ISO 19650)</h2>
+          <span style="font-size:11px; color:var(--muted);" id="docsSubtitle">Единая среда данных выбранного объекта</span>
+        </div>
+        <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
+          <input type="checkbox" id="showAllDocs" style="cursor:pointer;"> Все объекты
+        </label>
+      </div>
+      <div style="max-height:340px; overflow:auto;">
+        <table class="risk-table">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>Тип</th>
+              <th>Вер.</th>
+              <th>Статус (CDE)</th>
+              <th>Автор / Дата</th>
+            </tr>
+          </thead>
+          <tbody id="docRows"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:8px; font-size:10.5px; color:var(--muted);">
+        Статусы по ISO 19650: <strong>Черновик</strong> (Work in progress) → <strong>На согласовании</strong> (Shared) → <strong>Утверждён</strong> (Published) → <strong>Архив</strong>.
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">❓ RFI / Submittals с контролем SLA</h2>
+          <span style="font-size:11px; color:var(--muted);" id="rfiSubtitle">Запросы информации и сроки ответа заказчика</span>
+        </div>
+        <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
+          <input type="checkbox" id="showAllRfi" style="cursor:pointer;"> Все объекты
+        </label>
+      </div>
+      <div style="max-height:340px; overflow:auto;">
+        <table class="risk-table">
+          <thead>
+            <tr>
+              <th>№ / Вопрос</th>
+              <th>От кого → Кому</th>
+              <th>Срок (SLA)</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody id="rfiRows"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:8px; font-size:10.5px; color:var(--muted);">
+        SLA ответа заказчика — 3 рабочих дня. Просроченный ответ фиксируется как риск задержки стройки.
+      </div>
+    </section>
+  </div>
 </main>
 
 <!-- Edit Dialog -->
@@ -717,7 +781,7 @@
 
 <script>
 'use strict';
-const KEY = 'kontur-region-demo-v6';
+const KEY = 'kontur-region-demo-v7';
 const $ = id => document.getElementById(id);
 
 function localDate(d = new Date()) {
@@ -1035,6 +1099,29 @@ function seed() {
       { objectId: 8, title: 'Задержка поставки металлоконструкций пролётов', probability: 5, impact: 5, owner: 'ТОО «Казахдорстрой»', status: 'Реализовался', mitigation: 'Претензионная работа; рассмотрение расторжения договора.' },
       { objectId: 8, title: 'Экологические нарушения и шум', probability: 4, impact: 2, owner: 'Генподрядчик', status: 'Открыт', mitigation: 'Ограничение ночных работ; шумозащитные экраны.' },
       { objectId: 10, title: 'Повторная госэкспертиза раздела водоочистки', probability: 4, impact: 3, owner: 'Проектировщик', status: 'Открыт', mitigation: 'Ускорить корректировку ПСД; параллельная экспертиза.' }
+    ],
+    documents: [
+      { objectId: 1, name: 'Проектно-сметная документация (ПСД)', kind: 'ПСД', version: 'v3', status: 'Утверждён', author: 'ТОО «ПроектСервис»', date: offset(-120), link: '#' },
+      { objectId: 1, name: 'Заключение госэкспертизы ПСД', kind: 'Экспертиза', version: 'v1', status: 'Утверждён', author: 'РГП «Госэкспертиза»', date: offset(-95), link: '#' },
+      { objectId: 1, name: 'Договор госзакупок № 044/2026', kind: 'Договор', version: 'v1', status: 'Утверждён', author: 'Аппарат акимата', date: offset(-80), link: 'https://goszakup.gov.kz' },
+      { objectId: 1, name: 'Акт КС-2 (промежуточный)', kind: 'Исполнительная', version: 'v2', status: 'На согласовании', author: 'ТОО «АстанаВводСервис»', date: offset(-5), link: '#' },
+      { objectId: 1, name: 'Рабочая документация по узлам подключения', kind: 'РД', version: 'v4', status: 'Черновик', author: 'ТОО «ПроектСервис»', date: offset(-3), link: '#' },
+      { objectId: 2, name: 'Заключение госэкспертизы', kind: 'Экспертиза', version: 'v1', status: 'Утверждён', author: 'РГП «Госэкспертиза»', date: offset(-150), link: '#' },
+      { objectId: 2, name: 'Схема вентиляции (актуализация)', kind: 'РД', version: 'v2', status: 'На согласовании', author: 'ТОО «BI Global Stroy»', date: offset(-4), link: '#' },
+      { objectId: 6, name: 'Проект организации дорожного движения (ПОДД)', kind: 'РД', version: 'v5', status: 'Утверждён', author: 'Управление автодорог', date: offset(-30), link: '#' },
+      { objectId: 6, name: 'Предписание технадзора № ПБ-19', kind: 'Предписание', version: 'v1', status: 'На согласовании', author: 'Технадзор', date: offset(-2), link: '#' },
+      { objectId: 8, name: 'Заключение по инженерной геологии', kind: 'Изыскания', version: 'v2', status: 'Утверждён', author: 'ТОО «ГеоПроект»', date: offset(-60), link: '#' },
+      { objectId: 8, name: 'Претензионное письмо подрядчику', kind: 'Претензия', version: 'v1', status: 'Черновик', author: 'Юр. служба акимата', date: offset(-1), link: '#' },
+      { objectId: 10, name: 'ТЭО строительства ФОК', kind: 'ТЭО', version: 'v1', status: 'На согласовании', author: 'Проектировщик', date: offset(-20), link: '#' }
+    ],
+    rfis: [
+      { objectId: 1, num: 'RFI-014', subject: 'Уточнение марки и класса запорной арматуры', raisedBy: 'ТОО «АстанаВводСервис»', assignedTo: 'Проектировщик', raisedDate: offset(-6), dueDate: offset(-1), status: 'Просрочен', answer: '' },
+      { objectId: 1, num: 'RFI-015', subject: 'Согласование метода восстановления дорожного покрытия', raisedBy: 'ТОО «АстанаВводСервис»', assignedTo: 'Управление ТЭК', raisedDate: offset(-3), dueDate: offset(0), status: 'Открыт', answer: '' },
+      { objectId: 2, num: 'RFI-021', subject: 'Согласование замены производителя вентустановок', raisedBy: 'ТОО «BI Global Stroy»', assignedTo: 'Управление строительства', raisedDate: offset(-4), dueDate: offset(1), status: 'Открыт', answer: '' },
+      { objectId: 6, num: 'RFI-030', subject: 'Разъяснение по узлу деформационного шва', raisedBy: 'ТОО «КазДорМост»', assignedTo: 'Проектировщик', raisedDate: offset(-8), dueDate: offset(-3), status: 'Просрочен', answer: '' },
+      { objectId: 6, num: 'RFI-031', subject: 'Согласование материала ЩМА по фракции', raisedBy: 'ТОО «КазДорМост»', assignedTo: 'Технадзор', raisedDate: offset(-2), dueDate: offset(2), status: 'Открыт', answer: '' },
+      { objectId: 8, num: 'RFI-040', subject: 'Уточнение марки стали пролётных строений', raisedBy: 'ТОО «Казахдорстрой»', assignedTo: 'Проектировщик', raisedDate: offset(-5), dueDate: offset(-1), status: 'Отвечен', answer: 'Применить сталь 15ХСНД по ГОСТ 19281.' },
+      { objectId: 10, num: 'RFI-050', subject: 'Согласование системы водоочистки бассейна', raisedBy: 'ТОО «СпортСтройСервис»', assignedTo: 'Управление спорта', raisedDate: offset(-7), dueDate: offset(-2), status: 'Просрочен', answer: '' }
     ]
   };
 }
@@ -1053,6 +1140,8 @@ function normalizeState() {
   state.events.forEach((e, i) => { if (e.id == null) e.id = i + 1; });
   if (!state.risks) state.risks = [];
   state.risks.forEach((r, i) => { if (r.id == null) r.id = 'R' + (i + 1); });
+  if (!state.documents) state.documents = [];
+  if (!state.rfis) state.rfis = [];
 }
 normalizeState();
 
@@ -1150,6 +1239,8 @@ function selectObject(id) {
   renderTimeline();
   renderRisks();
   renderAlerts();
+  renderDocuments();
+  renderRfis();
   // Highlight row
   document.querySelectorAll('#rows tr').forEach(tr => tr.classList.remove('selected'));
   const row = document.querySelector(`#rows tr[data-id="${id}"]`);
@@ -1190,7 +1281,8 @@ function renderEVM(id) {
   const o = state.objects.find(x => x.id === id) || state.objects[0];
   if (!o) return;
 
-  const { today, late, BAC, EV, EV_pct, PV, PV_pct, AC, AC_pct, spiVal, cpiVal, SPI, CPI, EAC } = computeEVM(o);
+  const m = computeEVM(o);
+  const { today, late, BAC, EV, EV_pct, PV, PV_pct, AC, AC_pct, spiVal, cpiVal, SPI, CPI, EAC } = m;
 
   let spiClass = 'good';
   let spiText = 'В графике';
@@ -1276,8 +1368,97 @@ function renderEVM(id) {
         Календарный график соблюдается (SPI=${SPI} ≥ 1.0). Физическое выполнение соответствует лимитам финансирования. Проект находится в устойчивой «зелёной» зоне.
       `}
     </div>
+
+    <!-- S-Curve (PMI) -->
+    <div style="margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
+      <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">📈 S-кривая освоения (PV / EV / AC, прогноз до сдачи)</div>
+      <canvas id="evmChart" width="720" height="220" style="width:100%; height:auto;"></canvas>
+      <div style="display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin-top:4px; flex-wrap:wrap;">
+        <span>▬ PV (план)</span><span style="color:#2a9d8f;">▬ EV (факт)</span><span style="color:#e67e22;">▬ AC (выплаты)</span>
+        <span>· · · Прогноз даты сдачи: <strong>${forecastDate(o, m)}</strong></span>
+      </div>
+    </div>
   `;
   $('evmBody').innerHTML = html;
+  drawSCurve(o, m);
+}
+
+// Forecast completion date from SPI
+function forecastDate(o, m) {
+  if (o.status === 'Завершён') return 'объект сдан';
+  const planned = new Date(o.deadline);
+  const slipDays = m.spiVal > 0 ? Math.round((1 / m.spiVal - 1) * 90) : 0;
+  const est = new Date(planned.getTime() + Math.max(0, slipDays) * 86400000);
+  return displayDate(localDate(est)) + (slipDays > 0 ? ` (+${slipDays} дн.)` : ' (в графике)');
+}
+
+// Draw cumulative S-curve on canvas (no external libraries)
+function drawSCurve(o, m) {
+  const canvas = document.getElementById('evmChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const padL = 42, padR = 12, padT = 12, padB = 24;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  ctx.clearRect(0, 0, W, H);
+
+  const periods = 10;
+  // Sigmoid cumulative shape helper
+  const sig = t => 1 / (1 + Math.exp(-6 * (t - 0.5)));
+  const sig0 = sig(0), sig1 = sig(1);
+  const norm = t => (sig(t) - sig0) / (sig1 - sig0);
+
+  const planColor = '#2980b9', evColor = '#2a9d8f', acColor = '#e67e22';
+  const maxY = m.BAC;
+
+  const x = i => padL + (plotW * i) / (periods - 1);
+  const y = v => padT + plotH - (plotH * v / maxY);
+
+  // Grid + axis labels
+  ctx.strokeStyle = '#eef1f4'; ctx.lineWidth = 1;
+  ctx.fillStyle = '#8fa5b8'; ctx.font = '10px system-ui';
+  for (let g = 0; g <= 4; g++) {
+    const v = maxY * g / 4;
+    const yy = y(v);
+    ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
+    ctx.fillText(Math.round(v / 1e6) + 'м', 6, yy + 3);
+  }
+
+  const drawSeries = (getVal, color, dash) => {
+    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.setLineDash(dash || []);
+    for (let i = 0; i < periods; i++) {
+      const px = x(i), py = y(Math.max(0, Math.min(maxY, getVal(i))));
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+
+  // PV: plan grows to PV_pct by "today"
+  drawSeries(i => maxY * (m.PV_pct / 100) * norm(i / (periods - 1)), planColor);
+  // EV: actual, capped at EV_pct at today, then flat/forecast
+  drawSeries(i => {
+    const t = i / (periods - 1);
+    return maxY * (m.EV_pct / 100) * norm(t);
+  }, evColor);
+  // AC: actual payments
+  drawSeries(i => {
+    const t = i / (periods - 1);
+    return maxY * (m.AC_pct / 100) * norm(t);
+  }, acColor);
+  // Forecast EV (dashed) from today to completion
+  drawSeries(i => {
+    const t = i / (periods - 1);
+    return maxY * (1 - (1 - m.EV_pct / 100) * Math.exp(-2 * t * (m.spiVal || 1)));
+  }, '#9bd0cb', [5, 4]);
+
+  // Axis
+  ctx.strokeStyle = '#cdd8e0'; ctx.beginPath();
+  ctx.moveTo(padL, padT); ctx.lineTo(padL, H - padB); ctx.lineTo(W - padR, H - padB); ctx.stroke();
+  ctx.fillStyle = '#8fa5b8';
+  ctx.fillText('старт', padL, H - 8);
+  ctx.fillText('сегодня', W / 2 - 20, H - 8);
+  ctx.fillText('сдача', W - padR - 24, H - 8);
 }
 
 function render() {
@@ -1353,6 +1534,8 @@ function render() {
   renderTimeline();
   renderRisks();
   renderAlerts();
+  renderDocuments();
+  renderRfis();
 
   updateMapMarkers();
 }
@@ -1565,6 +1748,105 @@ function renderAlerts() {
 
 $('showAllRisks').onchange = renderRisks;
 
+// ============ DOCUMENTS (CDE · ISO 19650) ============
+function statusCde(status) {
+  return { 'Черновик': { c: '#8fa5b8', bg: '#eef2f6' }, 'На согласовании': { c: '#b06a12', bg: '#fef5e9' }, 'Утверждён': { c: '#1e7a4d', bg: '#eaf8f0' }, 'Архив': { c: '#5e7386', bg: '#eef1f4' } }[status] || { c: '#5e7386', bg: '#eef1f4' };
+}
+function renderDocuments() {
+  const showAll = $('showAllDocs').checked;
+  const o = state.objects.find(x => x.id === selectedObjectId);
+  $('docsSubtitle').textContent = showAll ? 'Все документы по региону' : `Документы: ${o ? o.name : ''}`;
+  const rows = (state.documents || []).filter(d => showAll || d.objectId === selectedObjectId)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  $('docRows').innerHTML = rows.length ? rows.map(d => {
+    const st = statusCde(d.status);
+    const obj = state.objects.find(x => x.id === d.objectId);
+    return `
+      <tr>
+        <td><strong>${d.name}</strong>${showAll && obj ? `<div style="font-size:10px;color:var(--muted);">${obj.name}</div>` : ''}</td>
+        <td>${d.kind}</td>
+        <td>${d.version}</td>
+        <td><span style="color:${st.c}; background:${st.bg}; padding:1px 7px; border-radius:10px; font-size:10.5px; font-weight:600; white-space:nowrap;">${d.status}</span></td>
+        <td>${d.author}<div style="font-size:10px;color:var(--muted);">${displayDate(d.date)}</div></td>
+      </tr>`;
+  }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px;">Документов нет.</td></tr>';
+}
+$('showAllDocs').onchange = renderDocuments;
+
+// ============ RFI / SUBMITTALS with SLA ============
+function rfiStatus(r, today) {
+  if (r.status === 'Отвечен') return { label: 'Отвечен', c: '#1e7a4d', bg: '#eaf8f0' };
+  if (r.dueDate < today || r.status === 'Просрочен') return { label: 'Просрочен', c: '#b3261e', bg: '#fdecea' };
+  return { label: 'В срок', c: '#b06a12', bg: '#fef5e9' };
+}
+function renderRfis() {
+  const today = localDate();
+  const showAll = $('showAllRfi').checked;
+  const o = state.objects.find(x => x.id === selectedObjectId);
+  $('rfiSubtitle').textContent = showAll ? 'Все запросы по региону' : `Запросы: ${o ? o.name : ''}`;
+  const rows = (state.rfis || []).filter(r => showAll || r.objectId === selectedObjectId);
+  const overdue = (state.rfis || []).filter(r => r.dueDate < today && r.status !== 'Отвечен').length;
+  $('rfiRows').innerHTML = (overdue && !showAll) ? `<tr><td colspan="4" style="background:#fdecea;color:#b3261e;font-size:11px;padding:6px;">Просроченных ответов по объекту: ${(state.rfis||[]).filter(r=>r.objectId===selectedObjectId&&r.dueDate<today&&r.status!=='Отвечен').length}</td></tr>` : '';
+  $('rfiRows').innerHTML += rows.length ? rows.map(r => {
+    const st = rfiStatus(r, today);
+    const obj = state.objects.find(x => x.id === r.objectId);
+    return `
+      <tr>
+        <td><strong>${r.num}</strong> · ${r.subject}${showAll && obj ? `<div style="font-size:10px;color:var(--muted);">${obj.name}</div>` : ''}${r.answer ? `<div style="font-size:10px;color:#1e7a4d;">↳ ${r.answer}</div>` : ''}</td>
+        <td style="font-size:11px;">${r.raisedBy}<div style="color:var(--muted);">→ ${r.assignedTo}</div></td>
+        <td>${displayDate(r.dueDate)}<div style="font-size:10px;color:var(--muted);">от ${displayDate(r.raisedDate)}</div></td>
+        <td><span style="color:${st.c}; background:${st.bg}; padding:1px 7px; border-radius:10px; font-size:10.5px; font-weight:600;">${st.label}</span></td>
+      </tr>`;
+  }).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;">Запросов нет.</td></tr>';
+}
+$('showAllRfi').onchange = renderRfis;
+
+// ============ OCDS EXPORT (Open Contracting Data Standard) ============
+$('exportOcds').onclick = () => {
+  const today = localDate();
+  const ocds = {
+    version: '1.1',
+    publishedDate: new Date().toISOString(),
+    publisher: { name: 'Акимат региона · Контур региона', uri: 'https://astanahub.com' },
+    releases: state.objects.map(o => {
+      const m = computeEVM(o);
+      return {
+        ocid: 'ocds-kontur-' + o.id,
+        date: new Date().toISOString(),
+        tag: ['implementation'],
+        tender: {
+          title: o.name,
+          status: o.status === 'Завершён' ? 'complete' : 'active',
+          value: { amount: o.budget, currency: 'KZT' },
+          procuringEntity: { name: o.ownerDept },
+          suppliers: [{ name: o.contractor }]
+        },
+        planning: {
+          budget: { amount: { amount: o.budget, currency: 'KZT' }, project: o.name },
+          documents: [{ documentType: 'projectPlan', title: o.contractDoc }]
+        },
+        implementation: {
+          transactions: [{ value: { amount: m.AC, currency: 'KZT' }, date: today }],
+          milestones: [
+            { type: 'delivery', description: 'Плановый срок сдачи', dueDate: o.deadline, status: { value: m.late ? 'overdue' : (o.status === 'Завершён' ? 'met' : 'scheduled') } }
+          ]
+        },
+        contract: { items: [{ description: o.category, quantity: o.progress }] },
+        parties: [
+          { id: 'akimat', name: o.ownerDept, roles: ['procuringEntity'] },
+          { id: 'contractor', name: o.contractor, roles: ['supplier'] }
+        ]
+      };
+    })
+  };
+  const blob = new Blob([JSON.stringify(ocds, null, 2)], { type: 'application/json;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `kontur-region-ocds-${today}.json`;
+  a.click();
+  $('message') && ($('message').textContent = 'Сформирован экспорт в формате OCDS (Open Contracting).');
+};
+
 let editingId = null;
 window.editObject = function(id) {
   const o = state.objects.find(x => x.id === id);
@@ -1669,11 +1951,18 @@ document.addEventListener('DOMContentLoaded', () => {
   initMap();
   render();
   renderEVM(selectedObjectId);
+  // PWA: register service worker for offline field use
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
 });
 if (document.readyState !== 'loading') {
   initMap();
   render();
   renderEVM(selectedObjectId);
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
 }
 </script>
 </body>
