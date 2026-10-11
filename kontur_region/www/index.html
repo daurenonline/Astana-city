@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Контур региона — Единая карта инфраструктурных объектов</title>
+  <title>InfraMap — Единая карта инфраструктурных объектов</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#0e2538">
@@ -497,7 +497,7 @@
 
 <header>
   <div>
-    <h1 class="brand-title">Контур региона</h1>
+    <h1 class="brand-title">InfraMap</h1>
     <p class="brand-subtitle">Единая цифровая карта и контроль сроков инфраструктурных проектов региона</p>
   </div>
   <div style="display:flex; align-items:center; gap:12px;">
@@ -749,7 +749,7 @@
       <div>
         <p style="margin:0 0 8px; font-size:14px; font-weight:700; color:var(--navy);">Даурен Болатов</p>
         <p style="margin:0 0 10px; font-size:12.5px; color:#4a5b6b;">
-          Автор и правообладатель проекта «Контур региона». Специализация — управление капитальными
+          Автор и правообладатель проекта «InfraMap». Специализация — управление капитальными
           инфраструктурными проектами и методология EVM (Earned Value Management).
           Master of Professional Studies in Project Management, Georgetown University.
         </p>
@@ -1847,7 +1847,7 @@ $('exportOcds').onclick = () => {
   const ocds = {
     version: '1.1',
     publishedDate: new Date().toISOString(),
-    publisher: { name: 'Акимат региона · Контур региона', uri: 'https://astanahub.com' },
+    publisher: { name: 'Акимат региона · InfraMap', uri: 'https://astanahub.com' },
     releases: state.objects.map(o => {
       const m = computeEVM(o);
       return {

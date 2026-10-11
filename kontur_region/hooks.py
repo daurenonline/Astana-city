@@ -1,5 +1,5 @@
 app_name = "kontur_region"
-app_title = "Контур региона"
+app_title = "InfraMap"
 app_publisher = "Dauren Bolatov"
 app_description = "Единая система оперативного контроля сроков инфраструктурных проектов региона (GTON 2026)"
 app_email = "bolatov.db@gmail.com"
@@ -14,7 +14,7 @@ app_license = "MIT"
 # 	{
 # 		"name": "kontur_region",
 # 		"logo": "/assets/kontur_region/logo.png",
-# 		"title": "Контур региона",
+# 		"title": "InfraMap",
 # 		"route": "/app/infrastructure-object"
 # 	}
 # ]

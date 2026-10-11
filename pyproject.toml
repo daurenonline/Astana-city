@@ -7,7 +7,7 @@ name = "kontur_region"
 authors = [
     { name = "Dauren Bolatov", email = "bolatov.db@gmail.com" }
 ]
-description = "Контур региона — Единая система оперативного контроля сроков инфраструктурных проектов региона (GovTech / GTON 2026)"
+description = "InfraMap — Единая система оперативного контроля сроков инфраструктурных проектов региона (GovTech / GTON 2026)"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [

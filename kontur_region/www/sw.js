@@ -1,4 +1,4 @@
-/* Контур региона — Service Worker (офлайн-доступ для выездных проверок) */
+/* InfraMap — Service Worker (офлайн-доступ для выездных проверок) */
 const CACHE = 'kontur-region-v1';
 const ASSETS = [
   './',
