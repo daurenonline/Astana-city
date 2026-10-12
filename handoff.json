@@ -1,0 +1,127 @@
+{
+  "handoff": {
+    "generated": "2026-10-12",
+    "purpose": "Контекст для продолжения и оркестрации другим агентом/LLM",
+    "human_doc": "HANDOFF.md"
+  },
+  "project": {
+    "name": "InfraMap",
+    "former_name": "Контур региона",
+    "domain": "GovTech",
+    "task": "Единая карта инфраструктурных объектов (G-TON 2026, Astana Hub)",
+    "stage": "Pre-Seed / MVP (демо-прототип на синтетических данных)",
+    "applicant_type": "физическое лицо",
+    "founders": 1,
+    "employment": "part-time (переход на full-time при старте пилота)"
+  },
+  "honesty_constraints": {
+    "revenue_kzt": 0,
+    "investments_kzt": 0,
+    "deployments": 0,
+    "security_certification": false,
+    "mvp_is_demo": true,
+    "no_fabrication": true,
+    "eu_model_note": "Используются международные стандарты (ISO 19650, PMI/EVM, Open Contracting); реального внедрения в европейском городе НЕ заявлять"
+  },
+  "founder": {
+    "name": "Даурен Болатов",
+    "email": "bolatov.db@gmail.com",
+    "phone": "+77018880324",
+    "telegram": "tlgrm_invest",
+    "city": "Астана",
+    "experience_years": 16,
+    "sectors": ["банковский", "государственный"],
+    "roles": ["проектный менеджер", "риск-менеджер"],
+    "organizations": ["БРК", "KPPF", "QIC (Qazaqstan Investment Corporation)", "Sergek Group", "РГП НЦКДА"],
+    "education": "Georgetown University — MPS in Project Management (Болашақ), EVM",
+    "recognition": "Президентский молодёжный кадровый резерв (ПМКР 2021)"
+  },
+  "links": {
+    "site": "https://daurenonline.github.io/Astana-city/",
+    "presentation": "https://daurenonline.github.io/Astana-city/presentation-2026.html",
+    "repository": "https://github.com/daurenonline/Astana-city",
+    "application_form": "https://astanahub.com/account/service_request/278144/update/?tab=1"
+  },
+  "repository": {
+    "local_path": "C:\\Users\\Пользователь\\Documents\\Default Project\\g-ton",
+    "branch": "main",
+    "remote": "https://github.com/daurenonline/Astana-city.git",
+    "last_commit": "103df71",
+    "in_sync_with_origin": true,
+    "snapshot_zip": "C:\\Users\\Пользователь\\Documents\\Default Project\\inframap-snapshot.zip",
+    "git_exe": "C:\\Program Files\\Git\\cmd\\git.exe"
+  },
+  "artifacts": {
+    "index.html": "Рабочий прототип (карта, EVM, аудит, риски, эскалация, документы, RFI, OCDS)",
+    "presentation.html": "Каноническая презентация, 3 слайда",
+    "presentation-2026.html": "Редирект на presentation.html (ссылка в заявке)",
+    "qr-mvp.svg": "QR на живой прототип (слайды 1 и 3, раздел «Об авторе»)",
+    "README.md": "Техническое описание (включает Frappe — уместно в репо)",
+    "README_EDIT_AND_PUBLISH.md": "Инструкция по правкам/публикации",
+    "GTON_ANKETA_FINAL.md": "Чистовик анкеты + статус",
+    "GTON_APPLICATION_PACK.md": "Расширенный пакет заявки",
+    "WORLD_PRACTICES_AND_ROADMAP.md": "Мировые практики и roadmap",
+    "kontur_region/": "Серверное Frappe-приложение (этап пилота, не развёрнуто)",
+    "LICENSE": "MIT",
+    "manifest.json/sw.js/icon.svg": "PWA-артефакты (SW отключён килсвитчем)"
+  },
+  "features_implemented": [
+    "GIS-карта OpenStreetMap/Leaflet со светофором статусов",
+    "Реестр объектов с паспортами (ответственный/подрядчик/бюджет/готовность/контакты/риск/обращения)",
+    "EVM: SPI, CPI, EAC, VAC, TCPI, S-кривая, прогноз даты сдачи",
+    "Журнал/аудит по объекту: 9 типов событий + поручения (action items)",
+    "Risk Register (вероятность × влияние, владелец, митигация)",
+    "Центр эскалации с уровнями L1–L3",
+    "Документы CDE (ISO 19650): статусы Черновик→На согласовании→Утверждён→Архив",
+    "RFI/Submittals с SLA (3 дня)",
+    "Экспорт JSON и OCDS",
+    "Поиск/фильтры, localStorage, раздел «Об авторе», kill-switch кэша"
+  ],
+  "server_side": {
+    "framework": "Frappe (MIT)",
+    "doctypes": ["Infrastructure Object", "Deadline Change Log", "Deadline Extension Request", "Region District"],
+    "files": ["api.py", "tasks.py", "hooks.py", "doctypes/"],
+    "deployment": "docker-compose.yml (on-premise, внутри РК)",
+    "status": "не развёрнуто"
+  },
+  "application_status": {
+    "form_filled_and_saved": true,
+    "stage_selected": "MVP",
+    "task_selected": "Единая карта инфраструктурных объектов",
+    "presentation_link": "https://daurenonline.github.io/Astana-city/presentation-2026.html",
+    "mvp_link_in_text": true,
+    "consents_checked": true,
+    "bin": null,
+    "pending": "Подписать ЭЦП и отправить (NCALayer) — только пользователь"
+  },
+  "decisions_log": [
+    "Название изменено на InfraMap",
+    "Стек Frappe/PostgreSQL убран из публичных материалов (оставлен в репозитории)",
+    "Эмодзи удалены из интерфейса",
+    "presentation-2026.html — редирект на presentation.html",
+    "Кэш-проблема решена kill-switch service worker + версионирование ссылки",
+    "QR-код на MVP добавлен на слайды 1 и 3 и в раздел «Об авторе»"
+  ],
+  "open_tasks": [
+    {"id": "submit_eds", "priority": "blocker", "owner": "user", "task": "Подписать ЭЦП и отправить заявку (NCALayer)"},
+    {"id": "founder_roles", "priority": "low", "owner": "user", "task": "Уточнить должности по БРК/KPPF/QIC/Sergek"},
+    {"id": "technical_md", "priority": "low", "owner": "agent", "task": "Вынести Frappe-детали из README в TECHNICAL.md"},
+    {"id": "server_notifications", "priority": "medium", "owner": "agent", "task": "Frappe Scheduler: уведомления/эскалация, роли, интеграции"},
+    {"id": "pwa_offline", "priority": "low", "owner": "agent", "task": "Вернуть PWA-офлайн с корректным обновлением кэша"}
+  ],
+  "environment": {
+    "os": "Windows",
+    "node": false,
+    "python": false,
+    "git": "2.55",
+    "github_credentials_cached": true,
+    "local_test_method": "PowerShell TcpListener + browser automation; копировать в путь без кириллицы (C:\\ProgramData\\kontur-demo)"
+  },
+  "publish_instructions": {
+    "edit_files": ["index.html", "presentation.html"],
+    "command": "cd \"C:\\Users\\Пользователь\\Documents\\Default Project\\g-ton\"; git add .; git commit -m \"...\"; git push origin main",
+    "or": "Веб-редактор GitHub → Commit changes",
+    "pages_rebuild_seconds": "60-120",
+    "urls_are_permanent": true
+  }
+}
