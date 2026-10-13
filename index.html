@@ -1512,12 +1512,15 @@ function renderEVM(id) {
     <div style="margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
       <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">Этапы ГИП (майлстоуны): статус «в срок / просрочен»</div>
       ${renderMilestoneStepper(o, m)}
-      <canvas id="msGantt" width="720" height="260" style="width:100%; height:auto; margin-top:10px;"></canvas>
+      <canvas id="msGantt" width="720" height="330" style="width:100%; height:auto; margin-top:10px;"></canvas>
       <div style="display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin-top:2px; flex-wrap:wrap;">
-        <span><span style="display:inline-block;width:14px;height:9px;background:#27ae60;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>пройдено</span>
-        <span><span style="display:inline-block;width:14px;height:9px;background:#2980b9;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>текущий (в срок)</span>
-        <span><span style="display:inline-block;width:14px;height:9px;background:#d93829;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>текущий (просрочен)</span>
-        <span><span style="display:inline-block;width:14px;height:9px;background:#cfd9e2;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>предстоит</span>
+        <span><span style="display:inline-block;width:14px;height:9px;background:#cfd9e2;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>план (этап)</span>
+        <span><span style="display:inline-block;width:14px;height:9px;background:#27ae60;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>факт: пройдено</span>
+        <span><span style="display:inline-block;width:14px;height:9px;background:#d93829;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>факт: просрочено</span>
+        <span><span style="display:inline-block;width:14px;height:9px;background:#2980b9;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>факт: текущий этап</span>
+      </div>
+      <div style="margin-top:6px; font-size:10px; color:var(--muted);">
+        Источник: демонстрационные (синтетические) данные. План этапов рассчитан от планового срока сдачи; факт — доля выполнения. В пилоте план/факт берутся из календарного графика заказчика и <strong>E-Qurylys</strong>.
       </div>
     </div>
 
@@ -1562,59 +1565,77 @@ function drawMilestoneGantt(o, m) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
-  const padL = 154, padR = 10, padT = 16, padB = 22;
+  const padL = 154, padR = 10, padT = 16, padB = 24;
   const plotW = W - padL - padR;
   const rowH = (H - padT - padB) / MILESTONES.length;
   ctx.clearRect(0, 0, W, H);
 
   const { dates, start, end } = milestoneDates(o);
   const t0 = start.getTime(), t1 = end.getTime();
-  const x = d => padL + plotW * ((d.getTime() - t0) / (t1 - t0));
+  const xMs = ms => padL + plotW * ((ms - t0) / (t1 - t0));
+  const xD = d => xMs(d.getTime());
   const idx = MILESTONES.indexOf(o.milestone);
   const late = m ? m.late : isLate(o);
   const done = o.status === 'Завершён';
   const cur = done ? MILESTONES.length : (idx < 0 ? 0 : idx);
+  const shiftDays = late ? Math.max(0, Math.round((1 / (m.spiVal || 1) - 1) * 30)) : 0;
+  const shiftMs = shiftDays * 86400000;
+
+  const rr = (x, y, w, h, r) => { const ww = Math.max(4, w); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, ww, h, r); else ctx.rect(x, y, ww, h); ctx.fill(); };
 
   // Сетка по месяцам
   ctx.font = '9px system-ui';
   ctx.textBaseline = 'middle';
   const g = new Date(start.getFullYear(), start.getMonth(), 1);
   while (g.getTime() <= t1) {
-    const gx = x(g);
+    const gx = xD(g);
     if (gx >= padL) {
       ctx.strokeStyle = '#eef1f4'; ctx.beginPath(); ctx.moveTo(gx, padT); ctx.lineTo(gx, H - padB); ctx.stroke();
-      if (g.getMonth() % 2 === 0) { ctx.fillStyle = '#8fa5b8'; ctx.fillText(`${String(g.getMonth() + 1).padStart(2, '0')}.${String(g.getFullYear()).slice(2)}`, gx + 2, H - padB + 8); }
+      if (g.getMonth() % 2 === 0) { ctx.fillStyle = '#8fa5b8'; ctx.fillText(`${String(g.getMonth() + 1).padStart(2, '0')}.${String(g.getFullYear()).slice(2)}`, gx + 2, H - padB + 9); }
     }
     g.setMonth(g.getMonth() + 1);
   }
 
-  // Полосы этапов
+  const barH = Math.max(3, rowH / 2 - 3);
   for (let i = 0; i < MILESTONES.length; i++) {
-    const y = padT + i * rowH + 1;
-    const h = Math.max(6, rowH - 4);
-    const x0 = x(dates[i]);
-    const x1 = (i === MILESTONES.length - 1) ? x(new Date(dates[i].getFullYear(), dates[i].getMonth() + 2, 1)) : x(dates[i + 1]);
-    let color = '#cfd9e2';
-    if (i < cur) color = '#27ae60';
-    else if (i === cur) color = late ? '#d93829' : '#2980b9';
-    const rw = Math.max(6, x1 - x0);
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(x0, y, rw, h, 2); else ctx.rect(x0, y, rw, h);
-    ctx.fill();
-    // подпись этапа слева
+    const y0 = padT + i * rowH;
+    const planY = y0 + 1.5;
+    const factY = y0 + rowH / 2 + 1;
+    const pStart = dates[i].getTime();
+    const pEnd = (i === MILESTONES.length - 1)
+      ? new Date(dates[i].getFullYear(), dates[i].getMonth() + 2, 1).getTime()
+      : dates[i + 1].getTime();
+
+    // План (нейтральный)
+    ctx.fillStyle = '#cfd9e2';
+    rr(xMs(pStart), planY, xMs(pEnd) - xMs(pStart), barH, 2);
+
+    // Факт (цветной) — только для пройденных и текущего
+    if (i < cur) {
+      ctx.fillStyle = '#27ae60';
+      rr(xMs(pStart + shiftMs), factY, (pEnd - pStart), barH, 2);
+    } else if (i === cur) {
+      const fEnd = pStart + shiftMs + (pEnd - pStart) * Math.min(1, m ? (m.spiVal || 1) : 1);
+      ctx.fillStyle = late ? '#d93829' : '#2980b9';
+      rr(xMs(pStart + shiftMs), factY, (fEnd - pStart - shiftMs), barH, 2);
+    }
+
+    // подпись этапа
     ctx.fillStyle = (i <= cur || done) ? '#33495c' : '#8fa5b8';
     const label = `${i + 1}. ` + (MILESTONES[i].length > 20 ? MILESTONES[i].slice(0, 19) + '…' : MILESTONES[i]);
-    ctx.fillText(label, 6, y + h / 2);
+    ctx.fillText(label, 6, y0 + rowH / 2);
   }
 
   // Метка «сегодня»
   const now = new Date();
   if (now >= start && now <= end) {
-    const nx = x(now);
+    const nx = xD(now);
     ctx.strokeStyle = '#b3261e'; ctx.setLineDash([4, 3]); ctx.beginPath();
     ctx.moveTo(nx, padT - 6); ctx.lineTo(nx, H - padB); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = '#b3261e'; ctx.fillText('сегодня', Math.max(padL, nx - 16), padT - 8);
+  }
+  if (shiftDays > 0) {
+    ctx.fillStyle = '#b3261e'; ctx.fillText(`сдвиг ~${shiftDays} дн.`, W - padR - 70, padT - 8);
   }
 }
 
