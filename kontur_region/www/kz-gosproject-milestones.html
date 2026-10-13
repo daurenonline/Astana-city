@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Этапность госпроекта в Казахстане — майлстоуны (InfraMap)</title>
+<style>
+  :root { --navy:#0e2538; --teal:#088b90; --muted:#5e7386; --line:#dce5ea; --plan:#e67e22; --build:#2980b9; --op:#27ae60; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#eef2f5; color:#132838; font:13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  .sheet { max-width: 1040px; margin: 20px auto; background:#fff; padding:30px 36px; border-radius:10px; box-shadow:0 4px 24px rgba(0,0,0,.08); }
+  h1 { font-size:22px; margin:0 0 4px; color:var(--navy); letter-spacing:-.5px; }
+  .tagline { color:var(--muted); font-size:12.5px; margin:0 0 8px; }
+  h2 { font-size:14px; color:#fff; background:var(--navy); padding:6px 10px; border-radius:5px; margin:20px 0 10px; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th,td { border-bottom:1px solid var(--line); padding:5px 7px; text-align:left; vertical-align:top; }
+  th { color:var(--muted); font-size:10px; text-transform:uppercase; }
+  .badge { display:inline-block; background:#e6f4f5; color:#0b5c60; border:1px solid #b7dfe2; border-radius:20px; padding:3px 12px; font-size:11px; font-weight:700; text-transform:uppercase; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:10px; font-size:10.5px; font-weight:700; }
+  .p-plan { background:#fef5e9; color:#b06a12; }
+  .p-build { background:#e8f4fb; color:var(--build); }
+  .p-op { background:#eaf8f0; color:var(--op); }
+  .flow { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 4px; }
+  .node { border:1px solid var(--line); border-radius:8px; padding:7px 10px; font-size:11.5px; background:#f8fbfc; flex:1 1 150px; }
+  .node b { color:var(--navy); }
+  .small { font-size:10.5px; color:var(--muted); }
+  @media print { body{background:#fff} .sheet{margin:0;box-shadow:none;border-radius:0;max-width:none;padding:11mm} h2{break-after:avoid} tr{break-inside:avoid} @page{size:A4;margin:9mm} }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <span class="badge">РК · Бюджетный кодекс ст.148–155 · Приказ МНЭ №59 (28.06.2025)</span>
+  <h1 style="margin-top:10px;">Этапность государственного проекта в Казахстане — майлстоуны</h1>
+  <p class="tagline">Как устроен жизненный цикл госинвестпроекта (ГИП) и где на этом пути работает InfraMap.</p>
+
+  <h2>A. Инвестиционный цикл — 4 этапа планирования ГИП</h2>
+  <div class="flow">
+    <div class="node"><b>1. Инвестиционное предложение</b><br>АБП → экономзаключение</div>
+    <div class="node"><b>2. Документация + экспертизы</b><br>ТЭО (или ТЗ «под ключ»), ФЭО</div>
+    <div class="node"><b>3. Портфель ГИП</b><br>орган по бюджетной политике</div>
+    <div class="node"><b>4. Определение ГИП</b><br>орган по бюджетному планированию → бюджет</div>
+  </div>
+  <p class="small">Плюс: мониторинг и оценка реализации (отдельная глава Правил).</p>
+
+  <h2>B. Строительный цикл объекта — сквозные майлстоуны</h2>
+  <table>
+    <tr><th>#</th><th>Майлстоун</th><th>Кто / документ</th><th>В InfraMap</th></tr>
+    <tr><td>1</td><td>Инвестиционное предложение</td><td>АБП / экономзаключение</td><td><span class="pill p-plan">Карточка объекта</span></td></tr>
+    <tr><td>2</td><td>ТЭО (или ТЗ «под ключ»)</td><td>Заказчик + проектировщик</td><td><span class="pill p-plan">Документ «ТЭО»</span></td></tr>
+    <tr><td>3</td><td>Отраслевая + комплексная вневедомственная экспертиза ТЭО</td><td>Экспертная организация</td><td><span class="pill p-plan">Документ «Экспертиза»</span></td></tr>
+    <tr><td>4</td><td>Экономическая экспертиза → заключение</td><td>Уполномоченный орган</td><td><span class="pill p-plan">Аудит</span></td></tr>
+    <tr><td>5</td><td>Портфель ГИП / бюджет</td><td>Уполномоченные органы</td><td>—</td></tr>
+    <tr><td>6</td><td>АПЗ, ТУ, отвод земли</td><td>Акимат / службы</td><td><span class="pill p-plan">Документ «АПЗ/ТУ»</span></td></tr>
+    <tr><td>7</td><td>Разработка ПСД</td><td>Проектировщик</td><td><span class="pill p-build">CDE: Черновик</span></td></tr>
+    <tr><td>8</td><td>Комплексная вневедомственная экспертиза ПСД (единый портал)</td><td>Экспертная организация</td><td><span class="pill p-build">CDE: На согласовании</span></td></tr>
+    <tr><td>9</td><td><b>Утверждение ПСД</b> (≤15 дней после заключения)</td><td>Заказчик-инвестор</td><td><span class="pill p-build">CDE: Утверждён</span></td></tr>
+    <tr><td>10</td><td>Разрешение на строительство; госзакупки, договор</td><td>Акимат / goszakup</td><td><span class="pill p-build">Подрядчик, Договор №</span></td></tr>
+    <tr><td>11</td><td>СМР: тех/авторский надзор, журналы, исп. документация</td><td>Подрядчик / технадзор (E-Qurylys)</td><td><span class="pill p-build">В работе, прогресс СМР</span></td></tr>
+    <tr><td>12</td><td>Акты КС-2/КС-3, оплаты, освоение</td><td>Заказчик / финуправление</td><td><span class="pill p-build">Финансы, EVM (AC)</span></td></tr>
+    <tr><td>13</td><td>Приёмка: рабочая / государственная комиссия</td><td>Комиссия</td><td><span class="pill p-op">Завершён</span></td></tr>
+    <tr><td>14</td><td>Акт ввода в эксплуатацию</td><td>Комиссия</td><td><span class="pill p-op">Документ «Акт ввода»</span></td></tr>
+    <tr><td>15</td><td>Регистрация: ЕГКН + АИС ГГК, баланс</td><td>Госорганы</td><td><span class="pill p-op">CDE: Архив</span></td></tr>
+    <tr><td>16</td><td>Эксплуатация и оценка реализации ГИП</td><td>Балансодержатель</td><td><span class="pill p-op">Риски, обращения, ТО</span></td></tr>
+  </table>
+
+  <h2>C. Точки контроля для акимата</h2>
+  <table>
+    <tr><th>Майлстоун</th><th>Что сигналит</th></tr>
+    <tr><td>Экономзаключение</td><td>«зелёный свет» проекта</td></tr>
+    <tr><td>Портфель ГИП</td><td>проект получил финансирование</td></tr>
+    <tr><td>Утверждение ПСД</td><td>можно начинать стройку</td></tr>
+    <tr><td>Договор подряда</td><td>зафиксированы сроки и подрядчик</td></tr>
+    <tr><td>Акты КС-2/КС-3</td><td>освоение бюджета (→ AC в EVM)</td></tr>
+    <tr><td>Акт ввода</td><td>объект сдан (→ статус «Завершён»)</td></tr>
+    <tr><td>Регистрация ЕГКН</td><td>объект поставлен на учёт</td></tr>
+  </table>
+
+  <p class="small" style="margin-top:12px;">
+    Позиционирование (честно): InfraMap не заменяет регуляторные процедуры и экспертизы — он показывает их статус и влияние на сроки; данные стройки — из E-Qurylys, геоданные — из АИС ГГК, права — из ЕГКН.
+  </p>
+</div>
+</body>
+</html>
