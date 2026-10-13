@@ -1486,10 +1486,13 @@ function renderEVM(id) {
 
       <div class="evm-bar-row">
         <div class="evm-bar-labels">
-          <span><strong>AC (Кассовые выплаты подрядчику):</strong></span>
+          <span><strong>AC (фактическая стоимость выполнения, по актам + аванс):</strong></span>
           <strong>${AC_pct}% (${formatMoney(AC)})</strong>
         </div>
         <div class="evm-bar-track"><div class="evm-bar-fill" style="width:${AC_pct}%; background:#e67e22;"></div></div>
+      </div>
+      <div style="margin-top:6px; font-size:10.5px; color:var(--muted);">
+        Оплата — по актам выполненных работ (КС-2/КС-3). <strong>AC &gt; EV</strong> означает удорожание (тот же объём дороже плана, CPI &lt; 1) и/или <strong>аванс</strong> (предоплата под гарантию), а не оплату невыполненных работ.
       </div>
     </div>
 
@@ -1510,7 +1513,7 @@ function renderEVM(id) {
       <div style="display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin-top:4px; flex-wrap:wrap;">
         <span><span style="display:inline-block;width:18px;height:3px;background:#2980b9;vertical-align:middle;margin-right:4px;"></span>PV (план)</span>
         <span><span style="display:inline-block;width:18px;height:3px;background:#2a9d8f;vertical-align:middle;margin-right:4px;"></span>EV (факт)</span>
-        <span><span style="display:inline-block;width:18px;height:3px;background:#e67e22;vertical-align:middle;margin-right:4px;"></span>AC (выплаты)</span>
+        <span><span style="display:inline-block;width:18px;height:3px;background:#e67e22;vertical-align:middle;margin-right:4px;"></span>AC (факт. стоимость)</span>
         <span>Прогноз даты сдачи: <strong>${forecastDate(o, m)}</strong></span>
       </div>
     </div>
