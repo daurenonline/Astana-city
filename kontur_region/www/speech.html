@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InfraMap — речь на защиту (GTON 2026)</title>
+<style>
+  :root { --navy:#0e2538; --teal:#088b90; --muted:#5e7386; --line:#dce5ea; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#eef2f5; color:#132838; font:13.5px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  .sheet { max-width: 900px; margin: 20px auto; background:#fff; padding: 32px 40px; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  h1 { font-size: 24px; margin: 0 0 2px; color: var(--navy); letter-spacing:-.5px; }
+  .tagline { color: var(--muted); font-size: 13px; margin: 0 0 4px; }
+  .badge { display:inline-block; background:#e6f4f5; color:#0b5c60; border:1px solid #b7dfe2; border-radius:20px; padding:3px 12px; font-size:11px; font-weight:700; text-transform:uppercase; }
+  h2 { font-size: 15px; color: var(--navy); margin: 18px 0 6px; background:var(--navy); color:#fff; padding:6px 10px; border-radius:5px; }
+  ul { margin: 0 0 6px; padding-left: 18px; }
+  li { margin: 3px 0; }
+  .note { background:#f6f9fb; border-left:4px solid var(--teal); padding:8px 12px; border-radius:4px; font-size:12.5px; color:#33495c; }
+  table { width:100%; border-collapse: collapse; font-size: 12.5px; margin-top:4px; }
+  th, td { border-bottom:1px solid var(--line); padding:5px 6px; text-align:left; }
+  th { color: var(--muted); font-size: 10.5px; text-transform: uppercase; }
+  .total td { font-weight:800; border-top:2px solid var(--navy); }
+  .sources { font-size:11.5px; color:var(--muted); }
+  a { color: var(--teal); text-decoration:none; }
+  @media print {
+    body { background:#fff; }
+    .sheet { margin:0; box-shadow:none; border-radius:0; max-width:none; padding: 12mm; }
+    h2 { break-after: avoid; }
+    @page { size: A4; margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <span class="badge">G-TON 2026 · Astana Hub · защита</span>
+  <h1 style="margin-top:10px;">InfraMap — речь на защиту (15 минут)</h1>
+  <p class="tagline">Формат: рассказ по живому демо — daurenonline.github.io/Astana-city/ · тезисно.</p>
+
+  <h2>0:00–1:00 · Вступление</h2>
+  <ul>
+    <li>Я — Даурен Болатов: 16 лет в банках и госсекторе, проектный и риск-менеджер.</li>
+    <li>Организации: БРК, KPPF, QIC, Sergek Group; Georgetown University (EVM); ПМКР 2021.</li>
+    <li>Задача G-TON: «Единая карта инфраструктурных объектов».</li>
+    <li>Честно: сейчас — <strong>работающий демо-прототип</strong> на тестовых данных; выручка 0, внедрений 0.</li>
+    <li>План: функционал → как реализуем → что нужно → деньги → плюсы/риски.</li>
+  </ul>
+
+  <h2>1:00–6:30 · Демо (по экрану)</h2>
+  <ul>
+    <li><strong>Карта</strong> — все объекты региона; цвет = статус (красный/зелёный/оранжевый/синий).</li>
+    <li><strong>«Реконструкция магистрального водопровода «Северный»»</strong> — ЖКХ, куратор А. Сапаров (Управление ТЭК), подрядчик ТОО «АстанаВводСервис», бюджет 480 млн ₸, готовность 65%, просрочен.</li>
+    <li><strong>EVM</strong> — SPI≈0.68, CPI≈0.82, перерасход ≈105 млн ₸ (EAC≈585 млн), S-кривая, прогноз даты → «видно до срыва».</li>
+    <li><strong>История/поручения</strong> — штаб по отопительному сезону → поручения с чекбоксами; кто и когда перенёс срок.</li>
+    <li><strong>Риски и обращения</strong> — «срыв поставки запорной арматуры»; 3 жалобы жителей (e-Otinish).</li>
+    <li><strong>Живой сценарий</strong> — у «Школы» срок вчера → краснеет, «Просрочено» +1, бюджет-под-риском растёт.</li>
+    <li><strong>Эскалация</strong> — сигнал L3 (зам. акима). <strong>Документы (ISO 19650) и RFI</strong> — статусы, сроки ответа.</li>
+    <li><strong>Экспорт/QR</strong> — JSON/OCDS; «откройте у себя».</li>
+  </ul>
+
+  <h2>6:30–9:00 · Техчасть (на чём построено)</h2>
+  <ul>
+    <li>Платформа: <strong>Frappe Framework / ERPNext — открытый код.</strong></li>
+    <li>«Из коробки»: роли и права, аудит, документы, воркфлоу, уведомления, отчёты, API.</li>
+    <li>Плюсы ERP/CRM-платформы: разграничение доступа · аудит · готовые уведомления/эскалация · настраиваемые отчёты · нет лицензий · on-premise и локализация в РК · большое сообщество.</li>
+    <li>Где доказала себя: муниципальный ERP — <strong>Фрайханес (Гватемала)</strong>; госпроект <strong>Tanaqol (Саудовская Арабия)</strong>; <strong>5000+ организаций</strong>.</li>
+    <li>Почему не с нуля: пилот за недели vs 9–18 мес · без лицензий · дешевле сопровождение.</li>
+  </ul>
+
+  <h2>9:00–10:30 · Что нужно для реализации</h2>
+  <ul>
+    <li>Право: ТОО, статус Astana Hub, меморандум с акиматом/СПК.</li>
+    <li>Данные: выборка объектов (сроки, ответственные, бюджет), шаблон загрузки.</li>
+    <li>Техника: сервер в РК, домен, TLS, бэкапы, роли.</li>
+    <li>ИБ: пилот на обезличенных данных; аттестация — на тиражирование.</li>
+    <li>Интеграции (этап 2): goszakup.gov.kz, e-Otinish.</li>
+  </ul>
+
+  <h2>10:30–12:00 · Бюджет пилота (допущение, 3–4 мес)</h2>
+  <table>
+    <tr><th>Статья</th><th>Диапазон, ₸</th><th>Комментарий</th></tr>
+    <tr><td>Команда (CTO/бэкенд + аналитик)</td><td>8–16 млн</td><td>основная статья</td></tr>
+    <tr><td>Адаптация на платформе</td><td>3–8 млн</td><td>модули, отчёты, миграция</td></tr>
+    <tr><td>Инфраструктура (сервер в РК, бэкапы)</td><td>0.5–2 млн</td><td>за год</td></tr>
+    <tr><td>ИБ / юридическое</td><td>1–3 млн</td><td>план аттестации</td></tr>
+    <tr><td>Внедрение, обучение, сопровождение</td><td>2–4 млн</td><td>запуск у заказчика</td></tr>
+    <tr><td>Резерв</td><td>10–15%</td><td>риски</td></tr>
+    <tr class="total"><td>Итого</td><td>≈15–33 млн ₸</td><td>можно снизить / безвозмездный пилот</td></tr>
+  </table>
+
+  <h2>12:00–13:00 · Люди</h2>
+  <ul>
+    <li>Основатель: продукт, методология, B2G.</li>
+    <li>CTO / бэкенд (Frappe/Python): ядро, интеграции.</li>
+    <li>Аналитик-внедренец: кастдев, настройка, обучение.</li>
+    <li>Партнёры: акимат/СПК, интегратор.</li>
+  </ul>
+
+  <h2>13:00–14:00 · Плюсы и риски</h2>
+  <ul>
+    <li><strong>+</strong> быстро · дёшево · локализация РК · контроль и прозрачность · стандарты (EVM, ISO 19650).</li>
+    <li><strong>−</strong> сопротивление вводу данных · нужен техресурс · ИБ позже · копирование фич.</li>
+    <li>Снижение: лёгкий ввод · CTO под гипотезу · пилот без ДСП · барьер = доменный опыт.</li>
+  </ul>
+
+  <h2>14:00–15:00 · Метрики, запрос, закрытие</h2>
+  <ul>
+    <li>Метрики: ≥90% объектов с актуальным статусом · время сводки «до/после» · 100% ответственных.</li>
+    <li>Запрос: пилот-площадка + методподдержка + юр. оформление + ИБ-консультации.</li>
+    <li>QR на экран → «откройте у себя» → готов к вопросам.</li>
+  </ul>
+
+  <h2>Если спросят (ответ в одну строку)</h2>
+  <ul>
+    <li>Один/part-time → домен закрываю я; CTO под гипотезу; full-time при пилоте.</li>
+    <li>Зачем не Excel → лёгкий реестр + жёсткая фиксация переносов.</li>
+    <li>Почему не интегратор → 9–18 мес без гарантии vs пилот за недели.</li>
+    <li>ИБ → обезличенные данные, разворот в РК, аттестация позже.</li>
+    <li>На чём → Frappe/ERPNext; Фрайханес, Tanaqol, 5000+ организаций.</li>
+    <li>Деньги → ≈15–33 млн ₸ (допущение) или безвозмездный пилот.</li>
+  </ul>
+
+  <p class="sources" style="margin-top:16px;">
+    Источники: frappe.io/erpnext · frappe.io/enterprise · municipal ERP — Фрайханес (Гватемала) · госсектор на Frappe/ERPNext (Tanaqol) · Demo: daurenonline.github.io/Astana-city/ · Контакты: bolatov.db@gmail.com · +7 701 888 03 24 · @tlgrm_invest
+  </p>
+</div>
+</body>
+</html>
