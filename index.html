@@ -1448,6 +1448,23 @@ function renderEVM(id) {
     advWarn = `<div style="margin-top:6px; background:#fef5e9; border:1px solid #f9dfb6; border-radius:6px; padding:6px 10px; color:#b06a12; font-size:11.5px;"><strong>Внимание:</strong> просрочка при непогашенном авансе (${formatMoney(m.advanceOutstanding)}) — риск замечания финконтроля.</div>`;
   }
 
+  // Банковская гарантия на аванс (срок действия)
+  const gDate = new Date(o.deadline); gDate.setMonth(gDate.getMonth() + 6);
+  const gExpiry = localDate(gDate);
+  const daysToG = Math.round((gDate.getTime() - Date.now()) / 86400000);
+  const gIssue = `БГ-${o.id}/2026`;
+  let gStatus, gColor;
+  if (m.advanceTotal === 0) { gStatus = 'не требуется'; gColor = '#5e7386'; }
+  else if (daysToG < 0) { gStatus = `ИСТЕКЛА (${Math.abs(daysToG)} дн. назад)`; gColor = '#b3261e'; }
+  else if (daysToG <= 60) { gStatus = `истекает скоро (через ${daysToG} дн.)`; gColor = '#b06a12'; }
+  else { gStatus = `действует (до ${displayDate(gExpiry)})`; gColor = '#1e7a4d'; }
+  let gWarn = '';
+  if (m.advanceTotal > 0 && daysToG < 0) {
+    gWarn = `<div style="margin-top:6px; background:#fdecea; border:1px solid #f6c5c0; border-radius:6px; padding:6px 10px; color:#b3261e; font-size:11.5px;"><strong>Критично:</strong> срок банковской гарантии на аванс (${gIssue}) истёк — аванс не обеспечен. Немедленно запросить продление гарантии.</div>`;
+  } else if (m.advanceTotal > 0 && daysToG <= 60) {
+    gWarn = `<div style="margin-top:6px; background:#fef5e9; border:1px solid #f9dfb6; border-radius:6px; padding:6px 10px; color:#b06a12; font-size:11.5px;"><strong>Внимание:</strong> срок банковской гарантии на аванс (${gIssue}) истекает через ${daysToG} дн. — проконтролировать продление.</div>`;
+  }
+
   $('evmTitle').innerHTML = `EVM-анализ: <strong>${o.name}</strong>`;
   $('evmSubtitle').innerHTML = `${o.district} · Этап: <strong>${o.milestone || '—'}</strong> · Подрядчик: <strong>${o.contractor}</strong>`;
 
@@ -1529,7 +1546,9 @@ function renderEVM(id) {
         <div style="font-size:10px; color:var(--muted); margin-top:2px;">зелёное — погашено зачётом · оранжевое — непогашенный аванс</div>
       </div>` : ''}
       <div><strong>Касса (AC по актам + непогашенный аванс):</strong> ${formatMoney(m.AC_cash)}.</div>
+      ${m.advanceTotal > 0 ? `<div><strong>Банковская гарантия на аванс:</strong> ${gIssue} · сумма ${formatMoney(m.advanceTotal)} — <b style="color:${gColor};">${gStatus}</b>.</div>` : ''}
       ${advWarn}
+      ${gWarn}
     </div>
 
     <!-- Predictive Akimat Alert -->
