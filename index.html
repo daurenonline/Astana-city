@@ -108,6 +108,13 @@
       border-radius: 10px; padding: 8px 14px; margin: -8px 0 18px; font-size: 12.5px;
     }
     .kpi-bar button { border: 1px solid #8cc7cb; background: #fff; color: #0b4548; border-radius: 6px; padding: 3px 10px; font-size: 11px; cursor: pointer; }
+    /* Milestone SVG roadmap */
+    #msChart svg { width: 100%; height: auto; display: block; }
+    .ms-hit { fill: transparent; cursor: pointer; }
+    .ms-hit:hover { fill: rgba(8,139,144,.08); }
+    .ms-label { fill: #33495c; }
+    .ms-label.dim { fill: #8fa5b8; }
+    .mstip { position: fixed; z-index: 3000; background: #0e2538; color: #fff; padding: 8px 10px; border-radius: 8px; font: 11.5px/1.5 system-ui; pointer-events: none; display: none; max-width: 300px; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
     /* Photo gallery */
     .photo-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
     @media (max-width: 900px) { .photo-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -885,9 +892,10 @@
   </form>
 </dialog>
 
+<div class="mstip" id="msTip"></div>
+
 <!-- Photo modal -->
-<div class="photo-modal" id="photoModal" onclick="if(event.target===this)closePhoto()">
-  <div class="pm-box">
+<div class="photo-modal" id="photoModal" onclick="if(event.target===this)closePhoto()">  <div class="pm-box">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:10px;">
       <strong id="photoTitle" style="color:var(--navy); font-size:14px;">Фото</strong>
       <button onclick="closePhoto()" style="padding:2px 10px; font-size:11px;">Закрыть</button>
@@ -1577,12 +1585,13 @@ function renderEVM(id) {
     <div style="margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
       <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">Майлстоуны ГИП: план / факт (ромб — контрольная точка на дату)</div>
       ${renderMilestoneStepper(o, m)}
-      <canvas id="msGantt" width="720" height="330" style="width:100%; height:auto; margin-top:10px;"></canvas>
-      <div style="display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin-top:2px; flex-wrap:wrap;">
+      <div id="msChart"></div>
+      <div style="display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin-top:6px; flex-wrap:wrap;">
         <span><span style="display:inline-block;width:9px;height:9px;background:#fff;border:1.5px solid #8fa5b8;transform:rotate(45deg);vertical-align:middle;margin-right:6px;"></span>план (контрольная дата)</span>
         <span><span style="display:inline-block;width:9px;height:9px;background:#27ae60;transform:rotate(45deg);vertical-align:middle;margin-right:6px;"></span>факт: пройден</span>
         <span><span style="display:inline-block;width:9px;height:9px;background:#2980b9;transform:rotate(45deg);vertical-align:middle;margin-right:6px;"></span>факт: текущий</span>
         <span><span style="display:inline-block;width:9px;height:9px;background:#d93829;transform:rotate(45deg);vertical-align:middle;margin-right:6px;"></span>факт: просрочен</span>
+        <span style="color:#8fa5b8;">наведите курсор на этап — покажу даты и источник</span>
       </div>
       <div style="margin-top:6px; font-size:10px; color:var(--muted);">
         Источник: демонстрационные (синтетические) данные. Ромб — контрольная дата этапа; факт — фактическая дата (сдвиг от плана). В пилоте план/факт берутся из календарного графика заказчика и <strong>E-Qurylys</strong>.
@@ -1607,8 +1616,101 @@ function renderEVM(id) {
   `;
   $('evmBody').innerHTML = html;
   drawSCurve(o, m);
-  drawMilestoneGantt(o, m);
+  const msEl = document.getElementById('msChart');
+  if (msEl) msEl.innerHTML = buildMilestoneSVG(o, m);
 }
+
+// Плановые даты этапов (нелинейные интервалы — реалистичнее), привязка к сроку сдачи (этап 11 = СМР)
+const MS_DUR = [3, 2, 4, 2, 3, 2, 5, 2, 1, 3, 9, 3, 2, 1, 2]; // месяцев до следующего этапа (15 переходов)
+function milestoneDates(o) {
+  const finish = new Date(o.deadline); // этап 11 (СМР) — на срок сдачи
+  const anchor = 10;
+  const dates = new Array(MILESTONES.length);
+  dates[anchor] = new Date(finish);
+  for (let i = anchor; i > 0; i--) { const d = new Date(dates[i]); d.setMonth(d.getMonth() - MS_DUR[i - 1]); dates[i - 1] = d; }
+  for (let i = anchor + 1; i < MILESTONES.length; i++) { const d = new Date(dates[i - 1]); d.setMonth(d.getMonth() + MS_DUR[i - 1]); dates[i] = d; }
+  return { dates, start: new Date(dates[0]), end: new Date(dates[MILESTONES.length - 1]) };
+}
+
+function buildMilestoneSVG(o, m) {
+  const W = 720, padL = 156, padR = 44, padT = 18, padB = 26;
+  const rowH = 21;
+  const H = padT + MILESTONES.length * rowH + padB;
+  const plotW = W - padL - padR;
+  const { dates, start, end } = milestoneDates(o);
+  const t0 = start.getTime(), t1 = end.getTime();
+  const xMs = ms => padL + plotW * ((ms - t0) / (t1 - t0));
+  const idx = MILESTONES.indexOf(o.milestone);
+  const late = m ? m.late : isLate(o);
+  const done = o.status === 'Завершён';
+  const cur = done ? MILESTONES.length : (idx < 0 ? 0 : idx);
+  const shiftDays = late ? Math.max(0, Math.round((1 / (m.spiVal || 1) - 1) * 30)) : 0;
+  const shiftMs = shiftDays * 86400000;
+  const todayMs = Date.now();
+  const SRC = 'демонстрационные данные; в пилоте — календарный график заказчика / E-Qurylys';
+
+  const dia = (cx, cy, r, fill, stroke) => `<polygon points="${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}" fill="${fill}" stroke="${stroke || 'none'}" stroke-width="1.4"/>`;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="height:auto; display:block;">`;
+
+  // Сетка по месяцам
+  const g = new Date(start.getFullYear(), start.getMonth(), 1);
+  while (g.getTime() <= t1) {
+    const gx = xMs(g.getTime());
+    if (gx >= padL) {
+      svg += `<line x1="${gx}" y1="${padT - 4}" x2="${gx}" y2="${H - padB}" stroke="#eef1f4" stroke-width="1"/>`;
+      if (g.getMonth() % 2 === 0) svg += `<text x="${gx + 2}" y="${H - padB + 12}" font-size="9" fill="#8fa5b8">${String(g.getMonth() + 1).padStart(2, '0')}.${String(g.getFullYear()).slice(2)}</text>`;
+    }
+    g.setMonth(g.getMonth() + 1);
+  }
+
+  // Строки этапов
+  for (let i = 0; i < MILESTONES.length; i++) {
+    const cy = padT + i * rowH + rowH / 2;
+    const planned = dates[i].getTime();
+    const px = xMs(planned);
+    const isCur = (i === cur && !done);
+    let factMs = null, factFill = null, status;
+    if (i < cur) { factMs = planned + shiftMs; factFill = '#27ae60'; status = 'пройден'; }
+    else if (isCur) { factMs = todayMs; factFill = late ? '#d93829' : '#2980b9'; status = late ? 'текущий — просрочен' : 'текущий — в срок'; }
+    else { status = 'предстоит'; }
+    const fx = factMs ? xMs(factMs) : null;
+
+    const data = encodeURIComponent(JSON.stringify({
+      n: i + 1, name: MILESTONES[i], plan: displayDate(localDate(dates[i])),
+      fact: factMs ? displayDate(localDate(new Date(factMs))) : '', status, src: SRC
+    }));
+
+    svg += `<g>`;
+    svg += `<rect class="ms-hit" x="0" y="${padT + i * rowH}" width="${W}" height="${rowH}" data-ms="${data}" onmousemove="msTip(event,this)" onmouseleave="msTipHide()"/>`;
+    if (factMs && shiftMs > 0 && i <= cur) svg += `<line x1="${px}" y1="${cy}" x2="${fx}" y2="${cy}" stroke="${late ? '#e7b0aa' : '#a9c7e0'}" stroke-width="1"/>`;
+    svg += dia(px, cy, 4.2, 'none', '#8fa5b8');
+    if (factMs) svg += dia(fx, cy, 5.4, factFill, 'none');
+    svg += `<text class="ms-label${(i <= cur || done) ? '' : ' dim'}" x="6" y="${cy + 3}" font-size="9.5">${i + 1}. ${MILESTONES[i].length > 20 ? MILESTONES[i].slice(0, 19) + '…' : MILESTONES[i]}${isCur ? ' ←текущий' : ''}</text>`;
+    svg += `</g>`;
+  }
+
+  // Метка «сегодня»
+  if (todayMs >= t0 && todayMs <= t1) {
+    const nx = xMs(todayMs);
+    svg += `<line x1="${nx}" y1="${padT - 6}" x2="${nx}" y2="${H - padB}" stroke="#b3261e" stroke-width="1" stroke-dasharray="4 3"/>`;
+    svg += `<text x="${Math.max(padL, nx - 16)}" y="${padT - 8}" font-size="9" fill="#b3261e">сегодня</text>`;
+  }
+  if (shiftDays > 0) svg += `<text x="${W - padR - 62}" y="${padT - 8}" font-size="9" fill="#b3261e">сдвиг ~${shiftDays} дн.</text>`;
+
+  svg += `</svg>`;
+  return svg;
+}
+
+window.msTip = function (ev, el) {
+  let d; try { d = JSON.parse(decodeURIComponent(el.dataset.ms)); } catch (e) { return; }
+  const t = document.getElementById('msTip');
+  t.innerHTML = `<b>${d.n}. ${d.name}</b><br>План: ${d.plan}${d.fact ? '<br>Факт: ' + d.fact : ''}<br>Статус: ${d.status}<br><span style="color:#9cb4c7;">Источник: ${d.src}</span>`;
+  t.style.display = 'block';
+  t.style.left = Math.min(window.innerWidth - 300, ev.clientX + 14) + 'px';
+  t.style.top = Math.min(window.innerHeight - 120, ev.clientY + 14) + 'px';
+};
+window.msTipHide = function () { const t = document.getElementById('msTip'); if (t) t.style.display = 'none'; };
 
 // Плановые даты этапов (синтетические, привязка к сроку сдачи)
 function milestoneDates(o) {
@@ -1623,84 +1725,6 @@ function milestoneDates(o) {
   const end = new Date(finish);
   end.setMonth(end.getMonth() + Math.round(7 * perStageMonths));
   return { dates, start, end };
-}
-
-function drawMilestoneGantt(o, m) {
-  const canvas = document.getElementById('msGantt');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const padL = 154, padR = 12, padT = 16, padB = 24;
-  const plotW = W - padL - padR;
-  const rowH = (H - padT - padB) / MILESTONES.length;
-  ctx.clearRect(0, 0, W, H);
-
-  const { dates, start, end } = milestoneDates(o);
-  const t0 = start.getTime(), t1 = end.getTime();
-  const xMs = ms => padL + plotW * ((ms - t0) / (t1 - t0));
-  const idx = MILESTONES.indexOf(o.milestone);
-  const late = m ? m.late : isLate(o);
-  const done = o.status === 'Завершён';
-  const cur = done ? MILESTONES.length : (idx < 0 ? 0 : idx);
-  const shiftDays = late ? Math.max(0, Math.round((1 / (m.spiVal || 1) - 1) * 30)) : 0;
-  const shiftMs = shiftDays * 86400000;
-  const todayMs = Date.now();
-
-  const diamond = (cx, cy, size, fill, stroke) => {
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - size); ctx.lineTo(cx + size, cy); ctx.lineTo(cx, cy + size); ctx.lineTo(cx - size, cy);
-    ctx.closePath();
-    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.4; ctx.stroke(); }
-  };
-
-  // Сетка по месяцам
-  ctx.font = '9px system-ui';
-  ctx.textBaseline = 'middle';
-  const g = new Date(start.getFullYear(), start.getMonth(), 1);
-  while (g.getTime() <= t1) {
-    const gx = xMs(g.getTime());
-    if (gx >= padL) {
-      ctx.strokeStyle = '#eef1f4'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, padT); ctx.lineTo(gx, H - padB); ctx.stroke();
-      if (g.getMonth() % 2 === 0) { ctx.fillStyle = '#8fa5b8'; ctx.fillText(`${String(g.getMonth() + 1).padStart(2, '0')}.${String(g.getFullYear()).slice(2)}`, gx + 2, H - padB + 9); }
-    }
-    g.setMonth(g.getMonth() + 1);
-  }
-
-  for (let i = 0; i < MILESTONES.length; i++) {
-    const y = padT + i * rowH + rowH / 2;
-    const planned = dates[i].getTime();
-    const px = xMs(planned);
-
-    // План — пустой ромб
-    diamond(px, y, 4.5, null, '#8fa5b8');
-
-    // Факт
-    if (i < cur) {
-      const actual = planned + shiftMs;
-      const ax = xMs(actual);
-      if (shiftMs > 0) { ctx.strokeStyle = '#c9a3a0'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(ax, y); ctx.stroke(); }
-      diamond(ax, y, 5.5, '#27ae60', null);
-    } else if (i === cur && !done) {
-      const ax = xMs(todayMs);
-      ctx.strokeStyle = late ? '#e7b0aa' : '#a9c7e0'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(ax, y); ctx.stroke();
-      diamond(ax, y, 5.5, late ? '#d93829' : '#2980b9', null);
-    }
-
-    // Подпись слева
-    ctx.fillStyle = (i <= cur || done) ? '#33495c' : '#8fa5b8';
-    const label = `${i + 1}. ` + (MILESTONES[i].length > 20 ? MILESTONES[i].slice(0, 19) + '…' : MILESTONES[i]) + (i === cur && !done ? ' ←текущий' : '');
-    ctx.fillText(label, 6, y);
-  }
-
-  // Метка «сегодня»
-  if (todayMs >= t0 && todayMs <= t1) {
-    const nx = xMs(todayMs);
-    ctx.strokeStyle = '#b3261e'; ctx.setLineDash([4, 3]); ctx.beginPath();
-    ctx.moveTo(nx, padT - 6); ctx.lineTo(nx, H - padB); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#b3261e'; ctx.fillText('сегодня', Math.max(padL, nx - 16), padT - 8);
-  }
-  if (shiftDays > 0) { ctx.fillStyle = '#b3261e'; ctx.fillText(`сдвиг ~${shiftDays} дн.`, W - padR - 70, padT - 8); }
 }
 
 // ===== Фотофиксация (демо) =====
