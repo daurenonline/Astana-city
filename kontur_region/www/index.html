@@ -1452,9 +1452,56 @@ function renderEVM(id) {
         <span>Прогноз даты сдачи: <strong>${forecastDate(o, m)}</strong></span>
       </div>
     </div>
+
+    <!-- Milestone tracker (ГИП, «как есть») -->
+    <div style="margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
+      <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">Этапы ГИП (майлстоуны): статус «в срок / просрочен»</div>
+      ${renderMilestoneStepper(o, m)}
+    </div>
   `;
   $('evmBody').innerHTML = html;
   drawSCurve(o, m);
+}
+
+// Official KZ GIP milestones, in order
+const MILESTONES = [
+  'Инвестиционное предложение', 'ТЭО', 'Экспертиза ТЭО', 'Экономическое заключение',
+  'Портфель ГИП', 'АПЗ/ТУ, отвод земли', 'Разработка ПСД', 'Комплексная экспертиза ПСД',
+  'Утверждение ПСД', 'Разрешение на строительство, договор', 'СМР', 'Акты КС-2/КС-3 (освоение)',
+  'Приёмка', 'Акт ввода', 'Регистрация ЕГКН', 'Эксплуатация'
+];
+
+function renderMilestoneStepper(o, m) {
+  const idx = MILESTONES.indexOf(o.milestone);
+  const late = m ? m.late : isLate(o);
+  const done = o.status === 'Завершён';
+  const cur = done ? MILESTONES.length : (idx < 0 ? 0 : idx);
+  const short = s => s.length > 22 ? s.slice(0, 20) + '…' : s;
+
+  const items = MILESTONES.map((ms, i) => {
+    let bg, col, border, mark;
+    if (i < cur) { bg = '#eaf8f0'; col = '#1e7a4d'; border = '#c1edd4'; mark = '✔'; }
+    else if (i === cur) {
+      if (late) { bg = '#fdecea'; col = '#b3261e'; border = '#f6c5c0'; mark = '✖'; }
+      else { bg = '#e8f4fb'; col = '#1f5c99'; border = '#c3d8ef'; mark = '●'; }
+    } else { bg = '#f2f5f8'; col = '#8fa5b8'; border = '#e3ebf1'; mark = '○'; }
+    const curMark = (i === cur) ? ' <b>(текущий)</b>' : '';
+    return `<span title="${ms}" style="display:inline-flex; align-items:center; gap:4px; background:${bg}; color:${col}; border:1px solid ${border}; border-radius:12px; padding:2px 8px; font-size:10.5px; margin:2px;">${mark} ${i + 1}. ${short(ms)}${curMark}</span>`;
+  }).join('');
+
+  const passed = cur;
+  const curName = MILESTONES[Math.min(cur, MILESTONES.length - 1)];
+  const statusLine = done
+    ? 'Объект сдан — все этапы пройдены.'
+    : (late
+      ? `Текущий этап «${curName}» — <b style="color:#b3261e;">ПРОСРОЧЕН</b> (срок ${displayDate(o.deadline)}).`
+      : `Текущий этап «${curName}» — <b style="color:#1e7a4d;">в срок</b> (плановый срок ${displayDate(o.deadline)}).`);
+
+  return `
+    <div style="display:flex; flex-wrap:wrap;">${items}</div>
+    <div style="margin-top:8px; font-size:11px; color:var(--muted);">
+      Пройдено этапов: <b>${passed}</b> из ${MILESTONES.length} · ${statusLine}
+    </div>`;
 }
 
 // Forecast completion date from SPI
