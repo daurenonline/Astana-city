@@ -587,6 +587,17 @@
   <div id="kpiActiveBar" class="kpi-bar" style="display:none;"></div>
   <div id="atRiskDetails" class="atrisk-box" style="display:none;"></div>
 
+  <!-- ALERTS / ESCALATION — сразу под сводкой («что горит») -->
+  <section class="panel" style="margin-top:6px;">
+    <div class="panel-header">
+      <div>
+        <h2 class="panel-title">Центр уведомлений и эскалации</h2>
+        <span style="font-size:11px; color:var(--muted);">Автоматические сигналы по правилам риска — что требует внимания сейчас</span>
+      </div>
+    </div>
+    <div id="alertsBody"></div>
+  </section>
+
   <!-- Main Grid: Map & Table -->
   <div class="dashboard-layout">
     <!-- MAP PANEL -->
@@ -725,18 +736,8 @@
     </section>
   </div>
 
-  <!-- ALERTS + DOCUMENTS -->
+  <!-- DOCUMENTS + QUESTIONS (paired) -->
   <div class="full-row">
-    <section class="panel">
-      <div class="panel-header">
-        <div>
-          <h2 class="panel-title">Центр уведомлений и эскалации</h2>
-          <span style="font-size:11px; color:var(--muted);">Автоматические сигналы по правилам риска</span>
-        </div>
-      </div>
-      <div id="alertsBody"></div>
-    </section>
-
     <section class="panel">
       <div class="panel-header">
         <div>
@@ -765,10 +766,7 @@
         Статусы по ISO 19650: <strong>Черновик</strong> (Work in progress) → <strong>На согласовании</strong> (Shared) → <strong>Утверждён</strong> (Published) → <strong>Архив</strong>.
       </div>
     </section>
-  </div>
 
-  <!-- QUESTIONS & APPROVALS (full width) -->
-  <div class="full-row" style="grid-template-columns:1fr;">
     <section class="panel">
       <div class="panel-header">
         <div>
