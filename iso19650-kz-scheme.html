@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO 19650 и казахстанский аналог (InfraMap)</title>
+<style>
+  :root { --navy:#0e2538; --teal:#088b90; --muted:#5e7386; --line:#dce5ea; --kz:#27ae60; --iso:#2980b9; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#eef2f5; color:#132838; font:13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  .sheet { max-width: 1000px; margin: 20px auto; background:#fff; padding: 30px 36px; border-radius:10px; box-shadow:0 4px 24px rgba(0,0,0,.08); }
+  h1 { font-size: 22px; margin:0 0 4px; color:var(--navy); letter-spacing:-.5px; }
+  .tagline { color:var(--muted); font-size:12.5px; margin:0 0 8px; }
+  h2 { font-size:14px; color:#fff; background:var(--navy); padding:6px 10px; border-radius:5px; margin:20px 0 10px; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td { border-bottom:1px solid var(--line); padding:6px 7px; text-align:left; vertical-align:top; }
+  th { color:var(--muted); font-size:10.5px; text-transform:uppercase; }
+  .badge { display:inline-block; background:#e6f4f5; color:#0b5c60; border:1px solid #b7dfe2; border-radius:20px; padding:3px 12px; font-size:11px; font-weight:700; text-transform:uppercase; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:700; }
+  .p-iso { background:#e8f4fb; color:var(--iso); }
+  .p-kz { background:#eaf8f0; color:var(--kz); }
+  .note { background:#f6f9fb; border-left:4px solid var(--teal); padding:9px 12px; border-radius:4px; font-size:12.5px; color:#33495c; margin-top:12px; }
+  .small { font-size:11px; color:var(--muted); }
+  @media print { body{background:#fff} .sheet{margin:0;box-shadow:none;border-radius:0;max-width:none;padding:11mm} h2{break-after:avoid} tr{break-inside:avoid} @page{size:A4;margin:10mm} }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <span class="badge">G-TON 2026 · стандарты и госсистемы РК</span>
+  <h1 style="margin-top:10px;">ISO 19650 и казахстанский аналог</h1>
+  <p class="tagline">Как международный стандарт управления информацией соотносится с нормативами и государственными системами Республики Казахстан, и где место InfraMap.</p>
+
+  <h2>1. Нормативная база Казахстана</h2>
+  <table>
+    <tr><th>Документ РК</th><th>Что регулирует</th><th>Аналог ISO</th></tr>
+    <tr><td><b>СТ РК ISO 19650-1</b> (2025)</td><td>Понятия и принципы управления информацией (BIM)</td><td><span class="pill p-iso">ISO 19650-1</span></td></tr>
+    <tr><td><b>СТ РК ISO 19650-2-2019</b></td><td>Стадия создания активов (реализация проекта)</td><td><span class="pill p-iso">ISO 19650-2</span></td></tr>
+    <tr><td><b>СП РК 1.02-114-2018</b></td><td>Информационные модели на проектной подготовке (PIM)</td><td><span class="pill p-iso">ISO 19650 (проект)</span></td></tr>
+    <tr><td><b>СП РК 1.02-120-2019</b></td><td>BIM в строительной организации: строительство, as-built, передача в эксплуатацию</td><td><span class="pill p-iso">ISO 19650-2/-3</span></td></tr>
+    <tr><td><b>СТ РК ISO/TS 12911-2017</b></td><td>Руководство по BIM, основные положения</td><td><span class="pill p-iso">ISO/TS 12911</span></td></tr>
+    <tr><td><b>Строительный кодекс РК (гл. 7)</b></td><td>Цифровое сопровождение строительства через госсистемы</td><td><span class="pill p-iso">Рамочный</span></td></tr>
+  </table>
+  <p class="small" style="margin-top:6px;">Итог: «наш аналог» ISO 19650 — <b>СТ РК ISO 19650</b> и своды правил <b>СП РК 1.02-114 / 1.02-120</b>.</p>
+
+  <h2>2. Государственные системы (где это ведётся на практике)</h2>
+  <table>
+    <tr><th>Система</th><th>Роль</th></tr>
+    <tr><td><b>E-Qurylys</b> — Единая цифровая платформа строительства</td><td>Исполнительная документация, журналы, отчётность технадзора, приёмка; авторизация по ЭЦП. Обязателен для бюджетных/квазигос-проектов</td></tr>
+    <tr><td><b>АИС ГГК</b> — Госградкадастр / Единый геопортал</td><td>Картография, генпланы, пространственные данные, градрегламенты</td></tr>
+    <tr><td><b>ИС ЕГКН</b></td><td>Кадастр недвижимости: земля, права, объекты</td></tr>
+    <tr><td>Пилот приёмки</td><td>Связка <b>E-Qurylys + ЕГКН + АИС ГГК</b> — «стройка → приёмка → регистрация»</td></tr>
+  </table>
+  <p class="small" style="margin-top:6px;">Роль «CDE (единой среды данных)» в РК де-факто исполняет связка <b>E-Qurylys (документы/журналы) + АИС ГГК (геоданные)</b>.</p>
+
+  <h2>3. Соответствие ISO 19650 ↔ Казахстан ↔ InfraMap</h2>
+  <table>
+    <tr><th>Этап ISO 19650</th><th>В Казахстане</th><th>Роль InfraMap</th></tr>
+    <tr><td>1. Оценка и потребность</td><td>АПЗ/ТУ, генплан (АИС ГГК), СК РК</td><td>Карточка/паспорт объекта</td></tr>
+    <tr><td>2–3. Тендер</td><td>goszakup.gov.kz, АПЗ/ТУ</td><td>Документы ПСД/ТЭО, лоты</td></tr>
+    <tr><td>4. Назначение</td><td>Договор, разрешение на строительство</td><td>Подрядчик, договор №, куратор</td></tr>
+    <tr><td>5. Мобилизация</td><td>E-Qurylys: участники, ЭЦП</td><td>Роли и права, «Документы»</td></tr>
+    <tr><td>6. Производство информации</td><td>E-Qurylys: журналы, исп. документация</td><td>CDE: Черновик → На согласовании</td></tr>
+    <tr><td>7. Поставка модели</td><td>СП РК 1.02-120 (as-built)</td><td>CDE: Утверждён</td></tr>
+    <tr><td>8. Завершение проекта</td><td>E-Qurylys: приёмка → ЕГКН</td><td>Статус «Завершён», архив</td></tr>
+    <tr><td>9. Эксплуатация</td><td>Акимат/управления, e-Otinish</td><td>Реестр, риски, обращения, ТО</td></tr>
+    <tr><td>10. Завершение цикла</td><td>Реконструкция/снос, кадастр</td><td>CDE: Архив</td></tr>
+  </table>
+
+  <div class="note">
+    <b>Позиционирование (честно):</b> InfraMap <b>не заменяет</b> госсистемы, а даёт акимату <b>управленческий слой</b> — сроки, просрочки, EVM, риски, эскалация — поверх данных E-Qurylys/АИС ГГК.
+    Пилот — <b>интеграция</b>, а не параллельный учёт. Сертификация по СТ РК не заявляется.
+  </div>
+
+  <p class="small" style="margin-top:12px;">Источники: СТ РК ISO 19650-2-2019; СТ РК ISO 19650-1 (2025); СП РК 1.02-114-2018; СП РК 1.02-120-2019; E-Qurylys (about.equrylys.kz); АИС ГГК (aisggk.kz).</p>
+</div>
+</body>
+</html>
