@@ -84,3 +84,12 @@
 - «На чём построено» → Frappe Framework / ERPNext (открытый код); кейсы: муниципалитет Фрайханес (Гватемала), госпроект Tanaqol (Саудовская Арабия), 5000+ организаций.
 - «Сколько денег» → пилот ≈15–33 млн ₸ (допущение); можно снизить или сделать безвозмездным.
 - «Что реально сделано» → рабочий демо-прототип; 0 ₸, 0 внедрений — честно, Pre-Seed.
+
+---
+
+## Приложение: источники по платформе и кейсам
+- Frappe Framework / ERPNext (открытый код): https://frappe.io/erpnext
+- ERPNext для крупных организаций (5000+): https://frappe.io/enterprise
+- Муниципальный ERP на Frappe — Фрайханес (Гватемала): https://quantexbeast.com/projects/municipal-management-system-fraijanes
+- Госсектор на Frappe/ERPNext (включая e-cart Tanaqol, Саудовская Арабия): https://clefincode.com/blog/global-digital-vibes/en/open-source-digital-transformation-in-government-frappe-framework-erpnext
+- Публичный сектор: кейсы и use cases Frappe: https://www.youtube.com/watch?v=gOrMBhfvF0o
