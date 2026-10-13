@@ -87,7 +87,7 @@
     /* Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 12px;
       margin-bottom: 20px;
     }
@@ -536,15 +536,19 @@
       <strong id="statActive">0</strong>
     </div>
     <div class="stat-card danger">
-      <div class="stat-label">Просрочено (Риск)</div>
+      <div class="stat-label">Просрочено (факт)</div>
       <strong id="statOverdue">0</strong>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-label">В зоне риска (прогноз)</div>
+      <strong id="statAtRisk">0</strong>
     </div>
     <div class="stat-card warning">
       <div class="stat-label">Планирование / ТЭО</div>
       <strong id="statPlan">0</strong>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Бюджет под риском</div>
+      <div class="stat-label">Бюджет просроченных (факт)</div>
       <strong id="statRiskBudget">0 млн ₸</strong>
     </div>
   </section>
@@ -733,8 +737,8 @@
     <section class="panel">
       <div class="panel-header">
         <div>
-          <h2 class="panel-title">RFI / Submittals с контролем SLA</h2>
-          <span style="font-size:11px; color:var(--muted);" id="rfiSubtitle">Запросы информации и сроки ответа заказчика</span>
+          <h2 class="panel-title">Вопросы и согласования (сроки ответа)</h2>
+          <span style="font-size:11px; color:var(--muted);" id="rfiSubtitle">Только то, что тормозит стройку и зависит от заказчика</span>
         </div>
         <label style="font-size:11px; color:var(--muted); display:flex; align-items:center; gap:5px; cursor:pointer;">
           <input type="checkbox" id="showAllRfi" style="cursor:pointer;"> Все объекты
@@ -745,8 +749,8 @@
           <thead>
             <tr>
               <th>№ / Вопрос</th>
-              <th>От кого → Кому</th>
-              <th>Срок (SLA)</th>
+              <th>Кто → Кому (ответственная сторона)</th>
+              <th>Срок ответа</th>
               <th>Статус</th>
             </tr>
           </thead>
@@ -754,7 +758,7 @@
         </table>
       </div>
       <div style="margin-top:8px; font-size:10.5px; color:var(--muted);">
-        SLA ответа заказчика — 3 рабочих дня. Просроченный ответ фиксируется как риск задержки стройки.
+        Учитываем только вопросы и согласования, влияющие на срок (когда ответ ждёт заказчик/технадзор). Сроки ответа — по договору. Источник: E-Qurylys / проектный офис. Внутренние вопросы подрядчика не отслеживаем.
       </div>
     </section>
   </div>
@@ -1613,10 +1617,13 @@ function render() {
   const overdueList = state.objects.filter(o => isLate(o, today));
   const plan = state.objects.filter(o => o.status === 'Планирование').length;
   const riskBudget = overdueList.reduce((acc, o) => acc + o.budget, 0);
+  // Прогноз: ещё не просрочен, но график «плывёт» (SPI < 0.85) → зона риска
+  const atRiskCount = state.objects.filter(o => o.status !== 'Завершён' && !isLate(o, today) && computeEVM(o).spiVal < 0.85).length;
 
   $('statTotal').textContent = total;
   $('statActive').textContent = active;
   $('statOverdue').textContent = overdueList.length;
+  if ($('statAtRisk')) $('statAtRisk').textContent = atRiskCount;
   $('statPlan').textContent = plan;
   $('statRiskBudget').textContent = (riskBudget / 1000000).toLocaleString('ru-RU') + ' млн ₸';
 
@@ -1899,19 +1906,21 @@ $('showAllDocs').onchange = renderDocuments;
 
 // ============ RFI / SUBMITTALS with SLA ============
 function rfiStatus(r, today) {
-  if (r.status === 'Отвечен') return { label: 'Отвечен', c: '#1e7a4d', bg: '#eaf8f0' };
-  if (r.dueDate < today || r.status === 'Просрочен') return { label: 'Просрочен', c: '#b3261e', bg: '#fdecea' };
+  if (r.status === 'Отвечен') return { label: 'Ответ дан', c: '#1e7a4d', bg: '#eaf8f0' };
+  if (r.dueDate < today || r.status === 'Просрочен') return { label: 'Просрочен ответ', c: '#b3261e', bg: '#fdecea' };
   return { label: 'В срок', c: '#b06a12', bg: '#fef5e9' };
 }
 function renderRfis() {
   const today = localDate();
   const showAll = $('showAllRfi').checked;
   const o = state.objects.find(x => x.id === selectedObjectId);
-  $('rfiSubtitle').textContent = showAll ? 'Все запросы по региону' : `Запросы: ${o ? o.name : ''}`;
+  $('rfiSubtitle').textContent = showAll
+    ? 'Все вопросы и согласования по региону'
+    : `Вопросы и согласования: ${o ? o.name : ''}`;
   const rows = (state.rfis || []).filter(r => showAll || r.objectId === selectedObjectId);
   const overdue = (state.rfis || []).filter(r => r.dueDate < today && r.status !== 'Отвечен').length;
-  $('rfiRows').innerHTML = (overdue && !showAll) ? `<tr><td colspan="4" style="background:#fdecea;color:#b3261e;font-size:11px;padding:6px;">Просроченных ответов по объекту: ${(state.rfis||[]).filter(r=>r.objectId===selectedObjectId&&r.dueDate<today&&r.status!=='Отвечен').length}</td></tr>` : '';
-  $('rfiRows').innerHTML += rows.length ? rows.map(r => {
+  let html = (overdue && !showAll) ? `<tr><td colspan="4" style="background:#fdecea;color:#b3261e;font-size:11px;padding:6px;">Просроченных ответов по объекту: ${(state.rfis||[]).filter(r=>r.objectId===selectedObjectId&&r.dueDate<today&&r.status!=='Отвечен').length}</td></tr>` : '';
+  html += rows.length ? rows.map(r => {
     const st = rfiStatus(r, today);
     const obj = state.objects.find(x => x.id === r.objectId);
     return `
@@ -1921,7 +1930,8 @@ function renderRfis() {
         <td>${displayDate(r.dueDate)}<div style="font-size:10px;color:var(--muted);">от ${displayDate(r.raisedDate)}</div></td>
         <td><span style="color:${st.c}; background:${st.bg}; padding:1px 7px; border-radius:10px; font-size:10.5px; font-weight:600;">${st.label}</span></td>
       </tr>`;
-  }).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;">Запросов нет.</td></tr>';
+  }).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;">Вопросов, влияющих на срок, нет.</td></tr>';
+  $('rfiRows').innerHTML = html;
 }
 $('showAllRfi').onchange = renderRfis;
 
