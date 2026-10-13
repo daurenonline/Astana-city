@@ -116,6 +116,8 @@
     .ms-label { fill: #33495c; }
     .ms-label.dim { fill: #8fa5b8; }
     .mstip { position: fixed; z-index: 3000; background: #0e2538; color: #fff; padding: 8px 10px; border-radius: 8px; font: 11.5px/1.5 system-ui; pointer-events: none; display: none; max-width: 300px; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+    .khint { margin-top: 8px; background: #f7fafc; border: 1px solid var(--line); border-left: 4px solid var(--teal); border-radius: 8px; padding: 10px 12px; font-size: 11.5px; color: #33495c; }
+    .khint ul { margin: 2px 0 6px; padding-left: 18px; }
     /* Photo gallery */
     .photo-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
     @media (max-width: 900px) { .photo-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -1575,6 +1577,7 @@ function renderEVM(id) {
     <div style="margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
       <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">S-кривая освоения (PV / EV / AC, прогноз до сдачи)</div>
       <div id="scChart"></div>
+      <div id="scDetail" class="khint" style="display:none;"></div>
       <div style="display:flex; gap:10px; font-size:10.5px; color:var(--muted); margin-top:4px; flex-wrap:wrap; align-items:center;">
         <button class="sc-leg" data-series="PV" onclick="scToggle('PV')" style="border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; font-size:10.5px; cursor:pointer; color:#2980b9;">PV (план)</button>
         <button class="sc-leg" data-series="EV" onclick="scToggle('EV')" style="border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; font-size:10.5px; cursor:pointer; color:#2a9d8f;">EV (факт)</button>
@@ -1589,6 +1592,7 @@ function renderEVM(id) {
       <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">Майлстоуны ГИП: план / факт (ромб — контрольная точка на дату)</div>
       ${renderMilestoneStepper(o, m)}
       <div id="msChart"></div>
+      <div id="msDetail" class="khint" style="display:none;"></div>
       <div style="display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin-top:6px; flex-wrap:wrap;">
         <span><span style="display:inline-block;width:9px;height:9px;background:#fff;border:1.5px solid #8fa5b8;transform:rotate(45deg);vertical-align:middle;margin-right:6px;"></span>план (контрольная дата)</span>
         <span><span style="display:inline-block;width:9px;height:9px;background:#27ae60;transform:rotate(45deg);vertical-align:middle;margin-right:6px;"></span>факт: пройден</span>
@@ -1686,7 +1690,7 @@ function buildMilestoneSVG(o, m) {
     }));
 
     svg += `<g>`;
-    svg += `<rect class="ms-hit" x="0" y="${padT + i * rowH}" width="${W}" height="${rowH}" data-ms="${data}" onmousemove="msTip(event,this)" onmouseleave="msTipHide()"/>`;
+    svg += `<rect class="ms-hit" x="0" y="${padT + i * rowH}" width="${W}" height="${rowH}" data-ms="${data}" onmousemove="msTip(event,this)" onmouseleave="msTipHide()" onclick="msClick(${i})"/>`;
     if (factMs && shiftMs > 0 && i <= cur) svg += `<line x1="${px}" y1="${cy}" x2="${fx}" y2="${cy}" stroke="${late ? '#e7b0aa' : '#a9c7e0'}" stroke-width="1"/>`;
     svg += dia(px, cy, 4.2, 'none', '#8fa5b8');
     if (factMs) svg += dia(fx, cy, 5.4, factFill, 'none');
@@ -1715,6 +1719,60 @@ window.msTip = function (ev, el) {
   t.style.top = Math.min(window.innerHeight - 120, ev.clientY + 14) + 'px';
 };
 window.msTipHide = function () { const t = document.getElementById('msTip'); if (t) t.style.display = 'none'; };
+
+// Клик по этапу → связанные документы и события
+const MS_KEYWORDS = [
+  ['инвест', 'предложен'], ['ТЭО', 'технико'], ['экспертиз'], ['эконом', 'заключ'],
+  ['портфел', 'бюджет'], ['АПЗ', 'технические условия', 'земл'], ['ПСД', 'проект'],
+  ['экспертиз'], ['утвержд'], ['разрешени', 'договор', 'подряд'], ['СМР', 'строительн', 'технадзор', 'выезд', 'фото'],
+  ['КС-2', 'КС-3', 'акт', 'оплат', 'финанс'], ['приёмк', 'приемк'], ['ввод'], ['ЕГКН', 'регистрац', 'кадастр'], ['эксплуатац', 'обслужив']
+];
+function mKeywords(i) { return (MS_KEYWORDS[i] || []).map(k => k.toLowerCase()); }
+function mEvents(i, o) {
+  const kw = mKeywords(i);
+  return (state.events || []).filter(e => e.objectId === o.id && kw.some(k => (`${e.title} ${e.text} ${e.type}`).toLowerCase().includes(k)))
+    .sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 6);
+}
+function mDocs(i, o) {
+  const kw = mKeywords(i);
+  return (state.documents || []).filter(d => d.objectId === o.id && kw.some(k => (`${d.name} ${d.kind} ${d.status}`).toLowerCase().includes(k))).slice(0, 6);
+}
+window.msClick = function (i) {
+  const o = state.objects.find(x => x.id === selectedObjectId); if (!o) return;
+  const { dates } = milestoneDates(o);
+  const ev = mEvents(i, o), docs = mDocs(i, o);
+  const el = document.getElementById('msDetail'); if (!el) return;
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+      <strong>${i + 1}. ${MILESTONES[i]}</strong>
+      <button onclick="document.getElementById('msDetail').style.display='none'" style="border:1px solid var(--line);background:#fff;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;">Закрыть</button>
+    </div>
+    <div style="color:var(--muted);font-size:10.5px;margin:2px 0 6px;">Плановая дата: ${displayDate(localDate(dates[i]))}</div>
+    ${docs.length ? `<div><strong>Документы этапа:</strong></div><ul>${docs.map(d => `<li>${d.name} — <span style="color:var(--muted)">${d.status}</span></li>`).join('')}</ul>` : ''}
+    ${ev.length ? `<div><strong>События этапа:</strong></div><ul>${ev.map(e => `<li>${displayDate(localDate(new Date(e.time)))} — ${e.title}</li>`).join('')}</ul>` : ''}
+    ${(!docs.length && !ev.length) ? '<div style="color:var(--muted)">Связанных записей по этапу в демо-данных нет.</div>' : ''}`;
+  try { el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+};
+// Клик по точке S-кривой → события рядом с датой
+window.scClick = function (i) {
+  const o = state.objects.find(x => x.id === selectedObjectId); if (!o) return;
+  const p = scData[i]; if (!p) return;
+  const t = p.date.getTime();
+  const ev = (state.events || []).filter(e => e.objectId === o.id && Math.abs(new Date(e.time).getTime() - t) <= 20 * 86400000)
+    .sort((a, b) => new Date(a.time) - new Date(b.time)).slice(0, 6);
+  const fm = v => (v / 1e6).toLocaleString('ru-RU') + ' млн ₸';
+  const el = document.getElementById('scDetail'); if (!el) return;
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+      <strong>Период: ${displayDate(localDate(p.date))}</strong>
+      <button onclick="document.getElementById('scDetail').style.display='none'" style="border:1px solid var(--line);background:#fff;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;">Закрыть</button>
+    </div>
+    <div style="margin:3px 0 6px;">PV: <b>${fm(p.PV)}</b> · EV: <b>${fm(p.EV)}</b> · AC: <b>${fm(p.AC)}</b></div>
+    ${ev.length ? `<div><strong>События рядом (±20 дней):</strong></div><ul>${ev.map(e => `<li>${displayDate(localDate(new Date(e.time)))} — ${e.title}</li>`).join('')}</ul>` : '<div style="color:var(--muted)">Событий рядом с датой нет.</div>'}`;
+  try { el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+};
 
 // Плановые даты этапов (синтетические, привязка к сроку сдачи)
 function milestoneDates(o) {
@@ -1891,7 +1949,7 @@ function buildSCurveSVG(o, m) {
   }
 
   const path = (key) => scData.map((p, i) => `${i ? 'L' : 'M'}${xT(p.t).toFixed(1)},${yV(p[key]).toFixed(1)}`).join(' ');
-  const dots = (key, color) => scData.map((p, i) => `<circle cx="${xT(p.t).toFixed(1)}" cy="${yV(p[key]).toFixed(1)}" r="2.4" fill="${color}" data-i="${i}"/>`).join('');
+  const dots = (key, color) => scData.map((p, i) => `<circle cx="${xT(p.t).toFixed(1)}" cy="${yV(p[key]).toFixed(1)}" r="2.6" fill="${color}" data-i="${i}" style="cursor:pointer;" onclick="scClick(${i})"/>`).join('');
 
   let svg = `<svg id="scSvg" viewBox="0 0 ${W} ${H}" width="100%" style="height:auto; display:block;">`;
   // Горизонтальная сетка + подписи
