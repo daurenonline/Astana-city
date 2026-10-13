@@ -596,6 +596,9 @@
     </div>
   </section>
   <div id="kpiActiveBar" class="kpi-bar" style="display:none;"></div>
+  <div style="font-size:10.5px; color:var(--muted); margin:-10px 0 14px;">
+    Данные на <strong id="dataAsOf">—</strong> · источник: демонстрационные (синтетические) данные; в пилоте — E-Qurylys / календарный график заказчика
+  </div>
   <div id="atRiskDetails" class="atrisk-box" style="display:none;"></div>
 
   <!-- ALERTS / ESCALATION — сразу под сводкой («что горит») -->
@@ -934,7 +937,17 @@ function isLate(o, today = localDate()) {
   return o.status !== 'Завершён' && o.deadline < today;
 }
 function formatMoney(num) {
-  return (num / 1000000).toLocaleString('ru-RU') + ' млн ₸';
+  const n = Math.abs(num || 0);
+  if (n >= 1e9) return (num / 1e9).toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + ' млрд ₸';
+  if (n >= 1e6) return (num / 1e6).toLocaleString('ru-RU', { maximumFractionDigits: 1 }) + ' млн ₸';
+  return (num).toLocaleString('ru-RU') + ' ₸';
+}
+function plural(n, one, few, many) {
+  n = Math.abs(n) % 100; const n1 = n % 10;
+  if (n > 10 && n < 20) return many;
+  if (n1 > 1 && n1 < 5) return few;
+  if (n1 === 1) return one;
+  return many;
 }
 function displayDate(s) {
   return s.split('-').reverse().join('.');
@@ -2074,14 +2087,16 @@ function render() {
   $('statPlan').textContent = plan;
   // Бюджет — динамически по текущему фильтру (KPI): всего / в работе / просрочено / риск / планирование
   const listBudget = list.reduce((acc, o) => acc + (o.budget || 0), 0);
-  $('statRiskBudget').textContent = (listBudget / 1000000).toLocaleString('ru-RU') + ' млн ₸';
+  $('statRiskBudget').textContent = formatMoney(listBudget);
   const bl = document.getElementById('statBudgetLabel');
   if (bl) bl.textContent = 'Бюджет: ' + (activeKpi === 'all' ? 'всего' : KPI_LABELS[activeKpi]);
+  const dao = document.getElementById('dataAsOf');
+  if (dao) dao.textContent = displayDate(today) + ' ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
   // Расшифровка зоны риска (прогноз)
   if ($('atRiskDetails')) {
     $('atRiskDetails').innerHTML = atRiskCount ? `
-      <h4>В зоне риска (прогноз): ${atRiskCount} · срок ещё не сорван, но график отстаёт (SPI &lt; 0.85)</h4>
+      <h4>В зоне риска (прогноз): ${atRiskCount} ${plural(atRiskCount, 'объект', 'объекта', 'объектов')} · срок ещё не сорван, но график отстаёт (SPI &lt; 0.85)</h4>
       ${atRiskObjs.map(({ o, m }) => `
         <div class="atrisk-row">
           <span>${o.name} <span style="color:var(--muted);">· этап: ${o.milestone || '—'} · срок ${displayDate(o.deadline)}</span></span>
@@ -2602,8 +2617,8 @@ function generateBriefing() {
 
   let html = `
     <p style="margin:4px 0;"><strong>Дата контроля:</strong> ${displayDate(today)} | <strong>Всего на контроле:</strong> ${state.objects.length} проектов.</p>
-    <p style="margin:4px 0; color:var(--danger);"><strong>Просрочено (факт):</strong> ${late.length} объектов на сумму <strong>${(riskSum / 1000000).toLocaleString('ru-RU')} млн ₸</strong>.</p>
-    <p style="margin:4px 0; color:#b06a12;"><strong>В зоне риска (прогноз, SPI &lt; 0.85):</strong> ${atRisk.length} объектов.</p>
+    <p style="margin:4px 0; color:var(--danger);"><strong>Просрочено (факт):</strong> ${late.length} ${plural(late.length, 'объект', 'объекта', 'объектов')} на сумму <strong>${formatMoney(riskSum)}</strong>.</p>
+    <p style="margin:4px 0; color:#b06a12;"><strong>В зоне риска (прогноз, SPI &lt; 0.85):</strong> ${atRisk.length} ${plural(atRisk.length, 'объект', 'объекта', 'объектов')}.</p>
     <ul style="margin:8px 0; padding-left:18px;">
       ${late.map(o => `<li><strong>${o.name}</strong> (${o.district}) — срок был <em>${displayDate(o.deadline)}</em>. Подрядчик: ${o.contractor}, куратор: ${o.owner}. Готовность СМР: ${o.progress}%.</li>`).join('')}
     </ul>
