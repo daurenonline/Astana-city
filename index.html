@@ -1410,7 +1410,7 @@ function computeEVM(o) {
 
   // Аванс и удорожание (упрощённая модель)
   const overrunPct = o.status === 'Планирование' ? 0 : Math.max(0, AC_pct - EV_pct);
-  const advancePct = o.status === 'В работе' ? 20 : 0;          // аванс до 20% договора
+  const advancePct = (o.status === 'В работе' || o.status === 'Завершён') ? 20 : 0; // аванс до 20% договора
   const advanceTotal = Math.round(BAC * advancePct / 100);
   const advanceRepaid = Math.round(advanceTotal * (EV_pct / 100)); // погашается зачётом пропорционально выполнению
   const advanceOutstanding = advanceTotal - advanceRepaid;
@@ -1435,6 +1435,18 @@ function renderEVM(id) {
   let cpiText = 'В смете';
   if (cpiVal < 0.9) { cpiClass = 'bad'; cpiText = 'Перерасход'; }
   else if (cpiVal < 1.0) { cpiClass = 'warn'; cpiText = 'Внимание'; }
+
+  // Аванс: статус, таймлайн погашения, предупреждение финконтроля
+  const advRepaidPct = m.advanceTotal > 0 ? Math.round(m.advanceRepaid / m.advanceTotal * 100) : 0;
+  const advStatus = m.advanceTotal === 0
+    ? 'не выдавался'
+    : (m.advanceOutstanding === 0 ? 'закрыт (погашен полностью)' : `выдан, погашается (${advRepaidPct}% погашено)`);
+  let advWarn = '';
+  if (m.advanceOutstanding > 0 && m.advanceOutstanding > EV) {
+    advWarn = `<div style="margin-top:6px; background:#fdecea; border:1px solid #f6c5c0; border-radius:6px; padding:6px 10px; color:#b3261e; font-size:11.5px;"><strong>Критично:</strong> непогашенный аванс (${formatMoney(m.advanceOutstanding)}) превышает стоимость выполненных работ (${formatMoney(EV)}) — аванс не обеспечен. Риск замечания финконтроля.</div>`;
+  } else if (m.advanceOutstanding > 0 && late) {
+    advWarn = `<div style="margin-top:6px; background:#fef5e9; border:1px solid #f9dfb6; border-radius:6px; padding:6px 10px; color:#b06a12; font-size:11.5px;"><strong>Внимание:</strong> просрочка при непогашенном авансе (${formatMoney(m.advanceOutstanding)}) — риск замечания финконтроля.</div>`;
+  }
 
   $('evmTitle').innerHTML = `EVM-анализ: <strong>${o.name}</strong>`;
   $('evmSubtitle').innerHTML = `${o.district} · Этап: <strong>${o.milestone || '—'}</strong> · Подрядчик: <strong>${o.contractor}</strong>`;
@@ -1507,8 +1519,17 @@ function renderEVM(id) {
     <!-- Аванс и удорожание (детализация) -->
     <div style="margin-top:8px; background:#f7fafc; border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:11.5px; color:#33495c; line-height:1.7;">
       <div><strong>Удорожание:</strong> +${m.overrunPct}% (CPI ${CPI}) — тот же объём работ дороже плана.</div>
-      <div><strong>Аванс:</strong> выдан ${formatMoney(m.advanceTotal)} · погашено зачётом ${formatMoney(m.advanceRepaid)} · <strong>непогашено ${formatMoney(m.advanceOutstanding)}</strong>.</div>
+      <div><strong>Аванс:</strong> ${advStatus} · выдан ${formatMoney(m.advanceTotal)} · погашено зачётом ${formatMoney(m.advanceRepaid)} · <strong>непогашено ${formatMoney(m.advanceOutstanding)}</strong>.</div>
+      ${m.advanceTotal > 0 ? `
+      <div style="margin-top:4px;">
+        <div style="display:flex; height:8px; border-radius:4px; overflow:hidden; background:#e3ebf1;">
+          <div style="width:${advRepaidPct}%; background:#27ae60;" title="Погашено зачётом"></div>
+          <div style="width:${100 - advRepaidPct}%; background:#e67e22;" title="Непогашенный аванс"></div>
+        </div>
+        <div style="font-size:10px; color:var(--muted); margin-top:2px;">зелёное — погашено зачётом · оранжевое — непогашенный аванс</div>
+      </div>` : ''}
       <div><strong>Касса (AC по актам + непогашенный аванс):</strong> ${formatMoney(m.AC_cash)}.</div>
+      ${advWarn}
     </div>
 
     <!-- Predictive Akimat Alert -->
