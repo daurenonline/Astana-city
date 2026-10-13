@@ -518,7 +518,7 @@
   <div class="notice-bar">
     <span><strong>Демонстрационный GIS-контур:</strong> интерактивная карта, автоматический расчёт просрочек, аудит переноса дедлайнов и выгрузка отчётов для акимата.</span>
     <div>
-      <button class="outline" onclick="toggleBriefing()" style="padding:4px 10px; font-size:11px;">Справка для селектора</button>
+      <button class="outline" onclick="toggleBriefing()" style="padding:4px 10px; font-size:11px;">Оперативный штаб / справка</button>
       <button class="outline" id="export" style="padding:4px 10px; font-size:11px;">Экспорт JSON</button>
       <button class="outline" id="exportOcds" style="padding:4px 10px; font-size:11px;">Экспорт OCDS</button>
     </div>
@@ -526,9 +526,13 @@
 
   <!-- Briefing Modal/Box -->
   <div class="briefing-box" id="briefingBox">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <strong style="color:var(--navy);">Служебная записка / Селекторная справка к совещанию руководства</strong>
-      <button onclick="toggleBriefing()" style="padding:2px 8px; font-size:11px;">Закрыть</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:10px; flex-wrap:wrap;">
+      <strong style="color:var(--navy);" id="briefingTitle">Справка к совещанию (оперативный штаб)</strong>
+      <span style="display:flex; gap:6px; align-items:center;">
+        <button class="outline" id="briefScopeObject" onclick="setBriefingScope('object')" style="padding:2px 8px; font-size:11px;">По выбранному объекту</button>
+        <button class="outline" id="briefScopeRegion" onclick="setBriefingScope('region')" style="padding:2px 8px; font-size:11px;">По всему региону</button>
+        <button onclick="toggleBriefing()" style="padding:2px 8px; font-size:11px;">Закрыть</button>
+      </span>
     </div>
     <div id="briefingContent">Формирование справки...</div>
   </div>
@@ -1326,6 +1330,9 @@ function selectObject(id) {
   renderAlerts();
   renderDocuments();
   renderRfis();
+  // Обновить открытую справку/штаб под выбранный объект
+  const bb = document.getElementById('briefingBox');
+  if (bb && bb.style.display === 'block') generateBriefing();
   // Highlight row
   document.querySelectorAll('#rows tr').forEach(tr => tr.classList.remove('selected'));
   const row = document.querySelector(`#rows tr[data-id="${id}"]`);
@@ -2065,6 +2072,19 @@ $('editForm').onsubmit = e => {
   render();
 };
 
+let briefingScope = 'object';
+
+window.setBriefingScope = function (scope) {
+  briefingScope = scope;
+  const b1 = document.getElementById('briefScopeObject');
+  const b2 = document.getElementById('briefScopeRegion');
+  const on = { background: 'var(--teal)', color: '#fff', borderColor: 'var(--teal)' };
+  const off = { background: '', color: '', borderColor: '' };
+  if (b1) Object.assign(b1.style, scope === 'object' ? on : off);
+  if (b2) Object.assign(b2.style, scope === 'region' ? on : off);
+  generateBriefing();
+};
+
 window.toggleBriefing = function() {
   const box = $('briefingBox');
   if (box.style.display === 'block') {
@@ -2072,21 +2092,61 @@ window.toggleBriefing = function() {
   } else {
     generateBriefing();
     box.style.display = 'block';
+    setBriefingScope(briefingScope); // подсветить активную кнопку
   }
 };
 
 function generateBriefing() {
   const today = localDate();
+  const o = state.objects.find(x => x.id === selectedObjectId);
+
+  // === Режим: по выбранному объекту (оперативный штаб по проекту) ===
+  if (briefingScope === 'object' && o) {
+    const m = computeEVM(o);
+    const risks = (state.risks || []).filter(r => r.objectId === o.id);
+    const rfi = (state.rfis || []).filter(r => r.objectId === o.id);
+    const openRfi = rfi.filter(r => r.status !== 'Отвечен' && r.dueDate < today);
+    const events = (state.events || []).filter(e => e.objectId === o.id)
+      .sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 4);
+
+    const $t = document.getElementById('briefingTitle');
+    if ($t) $t.textContent = 'Оперативный штаб по объекту';
+
+    const statusTxt = o.status === 'Завершён' ? 'сдан'
+      : (m.late ? `<b style="color:#b3261e;">ПРОСРОЧЕН</b> (срок был ${displayDate(o.deadline)})`
+        : `<b style="color:#1e7a4d;">в срок</b> (срок ${displayDate(o.deadline)})`);
+
+    const html = `
+      <p style="margin:4px 0;"><strong>Объект:</strong> ${o.name} <span style="color:var(--muted);">(${o.district} · ${o.category})</span></p>
+      <p style="margin:4px 0;"><strong>Этап (майлстоун):</strong> ${o.milestone || '—'} · <strong>Статус:</strong> ${statusTxt}</p>
+      <p style="margin:4px 0;"><strong>Куратор:</strong> ${o.owner} (${o.ownerDept}) · <strong>Подрядчик:</strong> ${o.contractor} · <strong>Договор:</strong> ${o.contractDoc}</p>
+      <p style="margin:4px 0;"><strong>Бюджет:</strong> ${formatMoney(o.budget)} · <strong>Готовность СМР:</strong> ${o.progress}%</p>
+      <p style="margin:4px 0;"><strong>EVM:</strong> SPI ${m.SPI} · CPI ${m.CPI} · прогноз стоимости ${formatMoney(m.EAC)} · прогноз сдачи: ${forecastDate(o, m)}</p>
+      ${risks.length ? `<p style="margin:8px 0 2px;"><strong>Риски:</strong></p><ul style="margin:0 0 4px; padding-left:18px;">${risks.map(r => `<li>${r.title} (балл ${r.probability * r.impact}, ${r.status}) — ${r.owner}</li>`).join('')}</ul>` : ''}
+      ${openRfi.length ? `<p style="margin:8px 0 2px; color:#b3261e;"><strong>Просрочен ответ по вопросам/согласованиям (${openRfi.length}):</strong></p><ul style="margin:0 0 4px; padding-left:18px;">${openRfi.map(r => `<li>${r.num}: ${r.subject} — ждём: ${r.assignedTo} (срок ${displayDate(r.dueDate)})</li>`).join('')}</ul>` : ''}
+      ${events.length ? `<p style="margin:8px 0 2px;"><strong>Последние события:</strong></p><ul style="margin:0 0 4px; padding-left:18px;">${events.map(e => `<li>${displayDate(localDate(new Date(e.time)))} — ${e.title}${e.who ? ' (' + e.who + ')' : ''}</li>`).join('')}</ul>` : ''}
+      <p style="margin:8px 0 0; font-size:11.5px; color:var(--muted);">* Рекомендация проектного офиса: заслушать куратора <b>${o.owner}</b> по объекту «${o.name}» и, при ${m.late ? 'просрочке' : 'отставании графика'}, потребовать нагоночный график от подрядчика «${o.contractor}».</p>
+    `;
+    $('briefingContent').innerHTML = html;
+    return;
+  }
+
+  // === Режим: по всему региону ===
+  const $t = document.getElementById('briefingTitle');
+  if ($t) $t.textContent = 'Справка к совещанию по региону';
+
   const late = state.objects.filter(o => isLate(o, today));
+  const atRisk = state.objects.filter(o => o.status !== 'Завершён' && !isLate(o, today) && computeEVM(o).spiVal < 0.85);
   const riskSum = late.reduce((acc, o) => acc + o.budget, 0);
 
   let html = `
     <p style="margin:4px 0;"><strong>Дата контроля:</strong> ${displayDate(today)} | <strong>Всего на контроле:</strong> ${state.objects.length} проектов.</p>
-    <p style="margin:4px 0; color:var(--danger);"><strong>Критическая зона:</strong> выявлено ${late.length} просроченных объектов на общую сумму <strong>${(riskSum/1000000).toLocaleString('ru-RU')} млн ₸</strong>.</p>
+    <p style="margin:4px 0; color:var(--danger);"><strong>Просрочено (факт):</strong> ${late.length} объектов на сумму <strong>${(riskSum / 1000000).toLocaleString('ru-RU')} млн ₸</strong>.</p>
+    <p style="margin:4px 0; color:#b06a12;"><strong>В зоне риска (прогноз, SPI &lt; 0.85):</strong> ${atRisk.length} объектов.</p>
     <ul style="margin:8px 0; padding-left:18px;">
-      ${late.map(o => `<li><strong>${o.name}</strong> (${o.district}) — плановый срок был <em>${displayDate(o.deadline)}</em>. Подрядчик: ${o.contractor}, куратор: ${o.owner}. Готовность СМР: ${o.progress}%.</li>`).join('')}
+      ${late.map(o => `<li><strong>${o.name}</strong> (${o.district}) — срок был <em>${displayDate(o.deadline)}</em>. Подрядчик: ${o.contractor}, куратор: ${o.owner}. Готовность СМР: ${o.progress}%.</li>`).join('')}
     </ul>
-    <p style="margin:4px 0; font-size:11.5px; color:var(--muted);">* Рекомендация проектного офиса: заслушать ответственных кураторов управлений на ближайшем аппаратном совещании с требованием предоставить нагоночные графики производства работ.</p>
+    <p style="margin:4px 0; font-size:11.5px; color:var(--muted);">* Рекомендация проектного офиса: заслушать кураторов просроченных объектов с требованием предоставить нагоночные графики.</p>
   `;
   $('briefingContent').innerHTML = html;
 }
@@ -2129,13 +2189,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initMap();
   render();
   renderEVM(selectedObjectId);
-  // PWA: register service worker for offline field use
+  setBriefingScope('object');
   resetServiceWorkerCaches();
 });
 if (document.readyState !== 'loading') {
   initMap();
   render();
   renderEVM(selectedObjectId);
+  setBriefingScope('object');
   resetServiceWorkerCaches();
 }
 </script>
