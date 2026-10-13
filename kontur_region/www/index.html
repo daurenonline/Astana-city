@@ -1408,7 +1408,15 @@ function computeEVM(o) {
   const VAC = BAC - EAC;
   const TCPI = (BAC - EV) !== 0 ? ((BAC - EV) / (BAC - AC)) : 0;
 
-  return { today, late, BAC, EV, EV_pct, PV, PV_pct, AC, AC_pct, spiVal, cpiVal, SPI, CPI, EAC, VAC, TCPI };
+  // Аванс и удорожание (упрощённая модель)
+  const overrunPct = o.status === 'Планирование' ? 0 : Math.max(0, AC_pct - EV_pct);
+  const advancePct = o.status === 'В работе' ? 20 : 0;          // аванс до 20% договора
+  const advanceTotal = Math.round(BAC * advancePct / 100);
+  const advanceRepaid = Math.round(advanceTotal * (EV_pct / 100)); // погашается зачётом пропорционально выполнению
+  const advanceOutstanding = advanceTotal - advanceRepaid;
+  const AC_cash = AC + advanceOutstanding;                      // касса = факт. стоимость по актам + непогашенный аванс
+
+  return { today, late, BAC, EV, EV_pct, PV, PV_pct, AC, AC_pct, spiVal, cpiVal, SPI, CPI, EAC, VAC, TCPI, overrunPct, advanceTotal, advanceRepaid, advanceOutstanding, AC_cash };
 }
 
 function renderEVM(id) {
@@ -1494,6 +1502,13 @@ function renderEVM(id) {
       <div style="margin-top:6px; font-size:10.5px; color:var(--muted);">
         Оплата — по актам выполненных работ (КС-2/КС-3). <strong>AC &gt; EV</strong> означает удорожание (тот же объём дороже плана, CPI &lt; 1) и/или <strong>аванс</strong> (предоплата под гарантию), а не оплату невыполненных работ.
       </div>
+    </div>
+
+    <!-- Аванс и удорожание (детализация) -->
+    <div style="margin-top:8px; background:#f7fafc; border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:11.5px; color:#33495c; line-height:1.7;">
+      <div><strong>Удорожание:</strong> +${m.overrunPct}% (CPI ${CPI}) — тот же объём работ дороже плана.</div>
+      <div><strong>Аванс:</strong> выдан ${formatMoney(m.advanceTotal)} · погашено зачётом ${formatMoney(m.advanceRepaid)} · <strong>непогашено ${formatMoney(m.advanceOutstanding)}</strong>.</div>
+      <div><strong>Касса (AC по актам + непогашенный аванс):</strong> ${formatMoney(m.AC_cash)}.</div>
     </div>
 
     <!-- Predictive Akimat Alert -->
