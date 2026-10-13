@@ -101,7 +101,7 @@
     .atrisk-box .badge-spi { font-weight: 800; white-space: nowrap; }
     .stat-card.clickable { cursor: pointer; transition: box-shadow .15s, transform .1s; }
     .stat-card.clickable:hover { box-shadow: 0 3px 10px rgba(0,0,0,.10); }
-    .stat-card.clickable.active { box-shadow: 0 0 0 2px var(--teal) inset, 0 3px 10px rgba(0,0,0,.12); }
+    .stat-card.active { box-shadow: 0 0 0 2px var(--teal) inset, 0 3px 10px rgba(0,0,0,.12); }
     .kpi-bar {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
       background: #e6f4f5; border: 1px solid #b7dfe2; color: #0b4548;
@@ -580,7 +580,7 @@
       <div class="stat-label">Планирование / ТЭО</div>
       <strong id="statPlan">0</strong>
     </div>
-    <div class="stat-card">
+    <div class="stat-card clickable" id="statBudgetCard" title="Показать все проекты" onclick="setKpi('all')">
       <div class="stat-label" id="statBudgetLabel">Бюджет (по фильтру)</div>
       <strong id="statRiskBudget">0 млн ₸</strong>
     </div>
@@ -1975,8 +1975,12 @@ const KPI_LABELS = {
 window.setKpi = function (kpi) {
   activeKpi = (activeKpi === kpi && kpi !== 'all') ? 'all' : kpi;
   document.querySelectorAll('.stat-card.clickable').forEach(c => {
-    c.classList.toggle('active', c.dataset.kpi === activeKpi && activeKpi !== 'all');
+    const isKpiCard = c.dataset.kpi !== undefined;
+    const active = isKpiCard && c.dataset.kpi === activeKpi && activeKpi !== 'all';
+    if (isKpiCard) c.classList.toggle('active', active);
   });
+  const bc = document.getElementById('statBudgetCard');
+  if (bc) bc.classList.toggle('active', activeKpi !== 'all');
   const det = document.getElementById('atRiskDetails');
   if (det) det.style.display = (activeKpi === 'risk') ? 'block' : 'none';
   const bar = document.getElementById('kpiActiveBar');
