@@ -112,6 +112,7 @@
     #msChart svg { width: 100%; height: auto; display: block; }
     .ms-hit { fill: transparent; cursor: pointer; }
     .ms-hit:hover { fill: rgba(8,139,144,.08); }
+    .sc-hit { fill: transparent; cursor: crosshair; }
     .ms-label { fill: #33495c; }
     .ms-label.dim { fill: #8fa5b8; }
     .mstip { position: fixed; z-index: 3000; background: #0e2538; color: #fff; padding: 8px 10px; border-radius: 8px; font: 11.5px/1.5 system-ui; pointer-events: none; display: none; max-width: 300px; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
@@ -893,6 +894,7 @@
 </dialog>
 
 <div class="mstip" id="msTip"></div>
+<div class="mstip" id="scTip"></div>
 
 <!-- Photo modal -->
 <div class="photo-modal" id="photoModal" onclick="if(event.target===this)closePhoto()">  <div class="pm-box">
@@ -1572,13 +1574,14 @@ function renderEVM(id) {
     <!-- S-Curve (PMI) -->
     <div style="margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
       <div style="font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px;">S-кривая освоения (PV / EV / AC, прогноз до сдачи)</div>
-      <canvas id="evmChart" width="720" height="220" style="width:100%; height:auto;"></canvas>
-      <div style="display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin-top:4px; flex-wrap:wrap;">
-        <span><span style="display:inline-block;width:18px;height:3px;background:#2980b9;vertical-align:middle;margin-right:4px;"></span>PV (план)</span>
-        <span><span style="display:inline-block;width:18px;height:3px;background:#2a9d8f;vertical-align:middle;margin-right:4px;"></span>EV (факт)</span>
-        <span><span style="display:inline-block;width:18px;height:3px;background:#e67e22;vertical-align:middle;margin-right:4px;"></span>AC (факт. стоимость)</span>
-        <span>Прогноз даты сдачи: <strong>${forecastDate(o, m)}</strong></span>
+      <div id="scChart"></div>
+      <div style="display:flex; gap:10px; font-size:10.5px; color:var(--muted); margin-top:4px; flex-wrap:wrap; align-items:center;">
+        <button class="sc-leg" data-series="PV" onclick="scToggle('PV')" style="border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; font-size:10.5px; cursor:pointer; color:#2980b9;">PV (план)</button>
+        <button class="sc-leg" data-series="EV" onclick="scToggle('EV')" style="border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; font-size:10.5px; cursor:pointer; color:#2a9d8f;">EV (факт)</button>
+        <button class="sc-leg" data-series="AC" onclick="scToggle('AC')" style="border:1px solid var(--line); background:#fff; border-radius:6px; padding:2px 8px; font-size:10.5px; cursor:pointer; color:#e67e22;">AC (факт. стоимость)</button>
+        <span style="color:#8fa5b8;">наведите на график — покажу значения; легенда скрывает серии</span>
       </div>
+      <div style="font-size:10.5px; color:var(--muted); margin-top:4px;">Прогноз даты сдачи: <strong>${forecastDate(o, m)}</strong></div>
     </div>
 
     <!-- Milestone tracker (ГИП, «как есть») -->
@@ -1615,7 +1618,8 @@ function renderEVM(id) {
     </div>
   `;
   $('evmBody').innerHTML = html;
-  drawSCurve(o, m);
+  const scEl = document.getElementById('scChart');
+  if (scEl) scEl.innerHTML = buildSCurveSVG(o, m);
   const msEl = document.getElementById('msChart');
   if (msEl) msEl.innerHTML = buildMilestoneSVG(o, m);
 }
@@ -1856,74 +1860,109 @@ function forecastDate(o, m) {
   return displayDate(localDate(est)) + (slipDays > 0 ? ` (+${slipDays} дн.)` : ' (в графике)');
 }
 
-// Draw cumulative S-curve on canvas (no external libraries)
-function drawSCurve(o, m) {
-  const canvas = document.getElementById('evmChart');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const padL = 42, padR = 12, padT = 12, padB = 24;
+// Интерактивная SVG S-кривая (наведение → значения; легенда скрывает серии)
+let scHidden = {};       // какие серии скрыты
+let scData = [];         // точки для подсказки
+
+function buildSCurveSVG(o, m) {
+  const W = 720, H = 250, padL = 48, padR = 16, padT = 16, padB = 28;
   const plotW = W - padL - padR, plotH = H - padT - padB;
-  ctx.clearRect(0, 0, W, H);
-
-  const periods = 10;
-  // Sigmoid cumulative shape helper
-  const sig = t => 1 / (1 + Math.exp(-6 * (t - 0.5)));
-  const sig0 = sig(0), sig1 = sig(1);
-  const norm = t => (sig(t) - sig0) / (sig1 - sig0);
-
-  const planColor = '#2980b9', evColor = '#2a9d8f', acColor = '#e67e22';
   const maxY = m.BAC;
+  const { start, end } = milestoneDates(o);
+  const t0 = start.getTime(), t1 = end.getTime();
+  const now = Date.now();
+  const fT = Math.min(0.98, Math.max(0.05, (now - t0) / (t1 - t0)));
+  const sig = t => 1 / (1 + Math.exp(-6 * (t - 0.5)));
+  const s0 = sig(0), s1 = sig(1), norm = t => (sig(t) - s0) / (s1 - s0);
+  const N = 13;
 
-  const x = i => padL + (plotW * i) / (periods - 1);
-  const y = v => padT + plotH - (plotH * v / maxY);
+  const fracPV = t => t <= fT ? (m.PV_pct / 100) * (norm(t) / norm(fT)) : m.PV_pct / 100 + (1 - m.PV_pct / 100) * ((t - fT) / (1 - fT));
+  const fracEV = t => t <= fT ? (m.EV_pct / 100) * (norm(t) / norm(fT)) : m.EV_pct / 100;
+  const fracAC = t => t <= fT ? (m.AC_pct / 100) * (norm(t) / norm(fT)) : m.AC_pct / 100;
 
-  // Grid + axis labels
-  ctx.strokeStyle = '#eef1f4'; ctx.lineWidth = 1;
-  ctx.fillStyle = '#8fa5b8'; ctx.font = '10px system-ui';
-  for (let g = 0; g <= 4; g++) {
-    const v = maxY * g / 4;
-    const yy = y(v);
-    ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
-    ctx.fillText(Math.round(v / 1e6) + 'м', 6, yy + 3);
+  const xT = t => padL + plotW * t;
+  const yV = v => padT + plotH - plotH * Math.max(0, Math.min(1, v / maxY));
+  const xMs = ms => xT((ms - t0) / (t1 - t0));
+
+  scData = [];
+  for (let i = 0; i < N; i++) {
+    const t = i / (N - 1), ms = t0 + (t1 - t0) * t;
+    scData.push({ t, date: new Date(ms), PV: maxY * fracPV(t), EV: maxY * fracEV(t), AC: maxY * fracAC(t) });
   }
 
-  const drawSeries = (getVal, color, dash) => {
-    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2;
-    ctx.setLineDash(dash || []);
-    for (let i = 0; i < periods; i++) {
-      const px = x(i), py = y(Math.max(0, Math.min(maxY, getVal(i))));
-      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-    }
-    ctx.stroke(); ctx.setLineDash([]);
-  };
+  const path = (key) => scData.map((p, i) => `${i ? 'L' : 'M'}${xT(p.t).toFixed(1)},${yV(p[key]).toFixed(1)}`).join(' ');
+  const dots = (key, color) => scData.map((p, i) => `<circle cx="${xT(p.t).toFixed(1)}" cy="${yV(p[key]).toFixed(1)}" r="2.4" fill="${color}" data-i="${i}"/>`).join('');
 
-  // PV: plan grows to PV_pct by "today"
-  drawSeries(i => maxY * (m.PV_pct / 100) * norm(i / (periods - 1)), planColor);
-  // EV: actual, capped at EV_pct at today, then flat/forecast
-  drawSeries(i => {
-    const t = i / (periods - 1);
-    return maxY * (m.EV_pct / 100) * norm(t);
-  }, evColor);
-  // AC: actual payments
-  drawSeries(i => {
-    const t = i / (periods - 1);
-    return maxY * (m.AC_pct / 100) * norm(t);
-  }, acColor);
-  // Forecast EV (dashed) from today to completion
-  drawSeries(i => {
-    const t = i / (periods - 1);
-    return maxY * (1 - (1 - m.EV_pct / 100) * Math.exp(-2 * t * (m.spiVal || 1)));
-  }, '#9bd0cb', [5, 4]);
-
-  // Axis
-  ctx.strokeStyle = '#cdd8e0'; ctx.beginPath();
-  ctx.moveTo(padL, padT); ctx.lineTo(padL, H - padB); ctx.lineTo(W - padR, H - padB); ctx.stroke();
-  ctx.fillStyle = '#8fa5b8';
-  ctx.fillText('старт', padL, H - 8);
-  ctx.fillText('сегодня', W / 2 - 20, H - 8);
-  ctx.fillText('сдача', W - padR - 24, H - 8);
+  let svg = `<svg id="scSvg" viewBox="0 0 ${W} ${H}" width="100%" style="height:auto; display:block;">`;
+  // Горизонтальная сетка + подписи
+  for (let g = 0; g <= 4; g++) {
+    const v = maxY * g / 4, yy = yV(v);
+    svg += `<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}" stroke="#eef1f4" stroke-width="1"/>`;
+    svg += `<text x="6" y="${yy + 3}" font-size="9" fill="#8fa5b8">${Math.round(v / 1e6)}м</text>`;
+  }
+  // Вертикальная сетка по месяцам
+  const g2 = new Date(start.getFullYear(), start.getMonth(), 1);
+  while (g2.getTime() <= t1) {
+    const gx = xMs(g2.getTime());
+    if (gx >= padL) { svg += `<line x1="${gx}" y1="${padT}" x2="${gx}" y2="${H - padB}" stroke="#f3f6f8" stroke-width="1"/>`; }
+    g2.setMonth(g2.getMonth() + 1);
+  }
+  // Серии
+  svg += `<path id="scPV" d="${path('PV')}" fill="none" stroke="#2980b9" stroke-width="2"/>`;
+  svg += `<path id="scEV" d="${path('EV')}" fill="none" stroke="#2a9d8f" stroke-width="2"/>`;
+  svg += `<path id="scAC" d="${path('AC')}" fill="none" stroke="#e67e22" stroke-width="2"/>`;
+  svg += `<g id="scPVd">${dots('PV', '#2980b9')}</g><g id="scEVd">${dots('EV', '#2a9d8f')}</g><g id="scACd">${dots('AC', '#e67e22')}</g>`;
+  // Метка «сегодня»
+  const nx = xMs(now);
+  if (nx >= padL && nx <= W - padR) {
+    svg += `<line x1="${nx}" y1="${padT}" x2="${nx}" y2="${H - padB}" stroke="#b3261e" stroke-width="1" stroke-dasharray="4 3"/>`;
+    svg += `<text x="${nx + 3}" y="${padT + 8}" font-size="9" fill="#b3261e">сегодня</text>`;
+  }
+  // Направляющая (для наведения) + зона наведения
+  svg += `<line id="scGuide" x1="0" y1="${padT}" x2="0" y2="${H - padB}" stroke="#7f96a8" stroke-width="1" stroke-dasharray="3 3" style="display:none;"/>`;
+  svg += `<rect class="sc-hit" x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" onmousemove="scTip(event,this)" onmouseleave="scTipHide()"/>`;
+  svg += `<text x="${padL}" y="${H - 8}" font-size="9" fill="#8fa5b8">старт</text><text x="${W - padR - 26}" y="${H - 8}" font-size="9" fill="#8fa5b8">сдача</text>`;
+  svg += `</svg>`;
+  return svg;
 }
+
+window.scToggle = function (s) {
+  scHidden[s] = !scHidden[s];
+  const set = (id, dotsId, btn) => {
+    const el = document.getElementById(id), d = document.getElementById(dotsId);
+    const vis = scHidden[s] ? 'none' : '';
+    if (el) el.style.display = vis;
+    if (d) d.style.display = vis;
+    if (btn) btn.style.opacity = scHidden[s] ? 0.4 : 1;
+  };
+  const btn = document.querySelector(`.sc-leg[data-series="${s}"]`);
+  set('sc' + s, 'sc' + s + 'd', btn);
+};
+
+window.scTip = function (ev, el) {
+  const svg = document.getElementById('scSvg');
+  if (!svg || !scData.length) return;
+  const rect = svg.getBoundingClientRect();
+  const scale = 720 / rect.width;
+  const x = (ev.clientX - rect.left) * scale;
+  // ближайшая точка
+  let best = 0, bestd = 1e9;
+  scData.forEach((p, i) => { const px = 48 + (720 - 48 - 16) * p.t; const d = Math.abs(px - x); if (d < bestd) { bestd = d; best = i; } });
+  const p = scData[best];
+  const px = 48 + (720 - 48 - 16) * p.t;
+  const guide = document.getElementById('scGuide');
+  if (guide) { guide.setAttribute('x1', px); guide.setAttribute('x2', px); guide.style.display = ''; }
+  const fm = v => (v / 1e6).toLocaleString('ru-RU') + ' млн ₸';
+  const t = document.getElementById('scTip');
+  t.innerHTML = `<b>${displayDate(localDate(p.date))}</b><br>` +
+    (scHidden.PV ? '' : `PV (план): ${fm(p.PV)}<br>`) +
+    (scHidden.EV ? '' : `EV (факт): ${fm(p.EV)}<br>`) +
+    (scHidden.AC ? '' : `AC: ${fm(p.AC)}`);
+  t.style.display = 'block';
+  t.style.left = Math.min(window.innerWidth - 220, ev.clientX + 14) + 'px';
+  t.style.top = Math.min(window.innerHeight - 110, ev.clientY + 14) + 'px';
+};
+window.scTipHide = function () { const t = document.getElementById('scTip'); if (t) t.style.display = 'none'; const g = document.getElementById('scGuide'); if (g) g.style.display = 'none'; };
 
 function render() {
   const today = localDate();
