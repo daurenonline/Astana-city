@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO 19650 — схема этапов (InfraMap)</title>
+<style>
+  :root { --navy:#0e2538; --teal:#088b90; --muted:#5e7386; --line:#dce5ea; --del:#e67e22; --op:#2980b9; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#eef2f5; color:#132838; font:13.5px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  .sheet { max-width: 980px; margin: 20px auto; background:#fff; padding: 30px 36px; border-radius:10px; box-shadow:0 4px 24px rgba(0,0,0,.08); }
+  h1 { font-size: 23px; margin:0 0 2px; color:var(--navy); letter-spacing:-.5px; }
+  .tagline { color:var(--muted); font-size:13px; margin:0 0 6px; }
+  h2 { font-size:14px; color:#fff; background:var(--navy); padding:6px 10px; border-radius:5px; margin:22px 0 10px; }
+  .legend { display:flex; gap:18px; font-size:12px; color:var(--muted); margin:10px 0 4px; }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .dot { width:12px; height:12px; border-radius:3px; display:inline-block; }
+  .flow { display:flex; flex-wrap:wrap; gap:10px; align-items:stretch; }
+  .card { flex:1 1 150px; min-width:140px; border-radius:9px; padding:10px 11px; border:1px solid var(--line); background:#f8fbfc; }
+  .card .num { font-size:11px; font-weight:800; color:var(--muted); }
+  .card .t { font-weight:700; color:var(--navy); font-size:13px; margin-top:2px; }
+  .card .en { font-size:10.5px; color:var(--muted); }
+  .card.del { border-left:5px solid var(--del); }
+  .card.op { border-left:5px solid var(--op); }
+  .arrow { align-self:center; color:#b9c6d0; font-weight:800; }
+  .cde { display:flex; flex-wrap:wrap; gap:10px; }
+  .state { flex:1 1 180px; border-radius:9px; padding:10px 12px; font-size:12.5px; color:#0b4548; background:#e6f4f5; border:1px solid #b7dfe2; }
+  .state b { display:block; color:#085a5e; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td { border-bottom:1px solid var(--line); padding:6px; text-align:left; vertical-align:top; }
+  th { color:var(--muted); font-size:10.5px; text-transform:uppercase; }
+  .small { font-size:11.5px; color:var(--muted); }
+  @media print { body{background:#fff} .sheet{margin:0;box-shadow:none;border-radius:0;max-width:none;padding:12mm} h2{break-after:avoid} .card{break-inside:avoid} @page{size:A4;margin:10mm} }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>ISO 19650 — схема этапов жизненного цикла актива</h1>
+  <p class="tagline">Международный стандарт управления информацией о построенном активе (BIM). Части: 1 — концепции, 2 — реализация, 3 — эксплуатация, 4 — обмен, 5 — безопасность.</p>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--del)"></span> Фаза реализации (ISO 19650-2)</span>
+    <span><span class="dot" style="background:var(--op)"></span> Фаза эксплуатации (ISO 19650-3)</span>
+  </div>
+
+  <h2>Этапы 1–8: реализация проекта</h2>
+  <div class="flow">
+    <div class="card del"><div class="num">1</div><div class="t">Оценка и потребность</div><div class="en">Assessment and need</div></div>
+    <div class="arrow">→</div>
+    <div class="card del"><div class="num">2</div><div class="t">Приглашение к тендеру</div><div class="en">Invitation to tender</div></div>
+    <div class="arrow">→</div>
+    <div class="card del"><div class="num">3</div><div class="t">Тендерное предложение</div><div class="en">Tender response</div></div>
+    <div class="arrow">→</div>
+    <div class="card del"><div class="num">4</div><div class="t">Назначение</div><div class="en">Appointment</div></div>
+  </div>
+  <div class="flow" style="margin-top:10px;">
+    <div class="card del"><div class="num">5</div><div class="t">Мобилизация</div><div class="en">Mobilization</div></div>
+    <div class="arrow">→</div>
+    <div class="card del"><div class="num">6</div><div class="t">Совместное производство информации</div><div class="en">Collaborative production</div></div>
+    <div class="arrow">→</div>
+    <div class="card del"><div class="num">7</div><div class="t">Поставка информационной модели</div><div class="en">Information model delivery</div></div>
+    <div class="arrow">→</div>
+    <div class="card del"><div class="num">8</div><div class="t">Завершение проекта</div><div class="en">Project close-out</div></div>
+  </div>
+
+  <h2>Этапы 9–10: эксплуатация актива</h2>
+  <div class="flow">
+    <div class="card op"><div class="num">9</div><div class="t">Эксплуатация актива</div><div class="en">In use</div></div>
+    <div class="arrow">→</div>
+    <div class="card op"><div class="num">10</div><div class="t">Завершение жизненного цикла</div><div class="en">End of life</div></div>
+  </div>
+
+  <h2>CDE — единая среда данных (ядро ISO 19650)</h2>
+  <div class="cde">
+    <div class="state"><b>Черновик</b>Work in progress — создаётся командой</div>
+    <div class="state"><b>На согласовании</b>Shared — проверка и согласование</div>
+    <div class="state"><b>Утверждён</b>Published — официальная версия</div>
+    <div class="state"><b>Архив</b>Archived — история и устаревшие версии</div>
+  </div>
+
+  <h2>Соответствие этапов с модулями InfraMap</h2>
+  <table>
+    <tr><th>Этап ISO 19650</th><th>В InfraMap</th></tr>
+    <tr><td>1. Оценка и потребность</td><td>Карточка и паспорт объекта, категория</td></tr>
+    <tr><td>2–3. Тендер</td><td>Документы «ПСД/ТЭО», связь с goszakup</td></tr>
+    <tr><td>4. Назначение</td><td>Подрядчик, договор №, куратор</td></tr>
+    <tr><td>5. Мобилизация</td><td>Роли и права, модуль «Документы (CDE)»</td></tr>
+    <tr><td>6. Производство информации</td><td>CDE: Черновик → На согласовании</td></tr>
+    <tr><td>7. Поставка модели</td><td>CDE: Утверждён</td></tr>
+    <tr><td>8. Завершение проекта</td><td>Статус «Завершён», архив документов</td></tr>
+    <tr><td>9. Эксплуатация</td><td>Реестр объектов, риски, обращения жителей</td></tr>
+    <tr><td>10. Завершение цикла</td><td>CDE: Архив; реконструкция/демонтаж</td></tr>
+  </table>
+
+  <p class="small" style="margin-top:14px;">
+    InfraMap использует принципы ISO 19650 (CDE, версии, роли, этапы жизненного цикла). Сертификация не заявляется.
+  </p>
+</div>
+</body>
+</html>
