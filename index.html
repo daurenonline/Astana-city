@@ -290,7 +290,7 @@
       list-style: none;
       padding: 0;
       margin: 0;
-      max-height: 420px;
+      max-height: 340px;
       overflow-y: auto;
       position: relative;
     }
@@ -423,7 +423,7 @@
     .alert-actions a, .alert-actions button {
       font-size: 10.5px; text-decoration: none; border-radius: 4px; padding: 3px 8px; cursor: pointer; border: 1px solid var(--line); background: #fff; color: var(--navy);
     }
-    .full-row { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .full-row { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
     @media (max-width: 900px) { .full-row { grid-template-columns: 1fr; } }
     .evm-grid {
       display: grid;
@@ -476,6 +476,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 20px;
       margin-top: 20px;
+      align-items: start;
     }
     @media (max-width: 900px) {
       .bottom-grid { grid-template-columns: 1fr; }
@@ -579,8 +580,8 @@
       <div class="stat-label">Планирование / ТЭО</div>
       <strong id="statPlan">0</strong>
     </div>
-    <div class="stat-card clickable" data-kpi="late" onclick="setKpi('late')">
-      <div class="stat-label">Бюджет просроченных (факт)</div>
+    <div class="stat-card">
+      <div class="stat-label" id="statBudgetLabel">Бюджет (по фильтру)</div>
       <strong id="statRiskBudget">0 млн ₸</strong>
     </div>
   </section>
@@ -1892,7 +1893,11 @@ function render() {
   $('statOverdue').textContent = overdueList.length;
   if ($('statAtRisk')) $('statAtRisk').textContent = atRiskCount;
   $('statPlan').textContent = plan;
-  $('statRiskBudget').textContent = (riskBudget / 1000000).toLocaleString('ru-RU') + ' млн ₸';
+  // Бюджет — динамически по текущему фильтру (KPI): всего / в работе / просрочено / риск / планирование
+  const listBudget = list.reduce((acc, o) => acc + (o.budget || 0), 0);
+  $('statRiskBudget').textContent = (listBudget / 1000000).toLocaleString('ru-RU') + ' млн ₸';
+  const bl = document.getElementById('statBudgetLabel');
+  if (bl) bl.textContent = 'Бюджет: ' + (activeKpi === 'all' ? 'всего' : KPI_LABELS[activeKpi]);
 
   // Расшифровка зоны риска (прогноз)
   if ($('atRiskDetails')) {
