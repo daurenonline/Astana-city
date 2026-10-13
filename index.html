@@ -592,6 +592,25 @@
           <option value="Планирование">Планирование</option>
           <option value="Завершён">Завершённые</option>
         </select>
+        <select id="filterMilestone" aria-label="Этап (майлстоун)">
+          <option value="all">Все этапы (майлстоуны)</option>
+          <option value="Инвестиционное предложение">1. Инвестиционное предложение</option>
+          <option value="ТЭО">2. ТЭО</option>
+          <option value="Экспертиза ТЭО">3. Экспертиза ТЭО</option>
+          <option value="Экономическое заключение">4. Экономическое заключение</option>
+          <option value="Портфель ГИП">5. Портфель ГИП</option>
+          <option value="АПЗ/ТУ, отвод земли">6. АПЗ/ТУ, отвод земли</option>
+          <option value="Разработка ПСД">7. Разработка ПСД</option>
+          <option value="Комплексная экспертиза ПСД">8. Комплексная экспертиза ПСД</option>
+          <option value="Утверждение ПСД">9. Утверждение ПСД</option>
+          <option value="Разрешение на строительство, договор">10. Разрешение на строительство, договор</option>
+          <option value="СМР">11. СМР</option>
+          <option value="Акты КС-2/КС-3 (освоение)">12. Акты КС-2/КС-3 (освоение)</option>
+          <option value="Приёмка">13. Приёмка</option>
+          <option value="Акт ввода">14. Акт ввода</option>
+          <option value="Регистрация ЕГКН">15. Регистрация ЕГКН</option>
+          <option value="Эксплуатация">16. Эксплуатация</option>
+        </select>
       </div>
 
       <div class="table-container">
@@ -823,7 +842,7 @@
 
 <script>
 'use strict';
-const KEY = 'kontur-region-demo-v7';
+const KEY = 'kontur-region-demo-v8';
 const $ = id => document.getElementById(id);
 
 function localDate(d = new Date()) {
@@ -868,6 +887,7 @@ function seed() {
         complaints: '3 жалобы (e-Otinish: разрытия без ограждения)',
         contractDoc: 'Договор № 044/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «АстанаВводСервис»',
+        milestone: 'СМР',
         budget: 480000000,
         progress: 65,
         deadline: offset(-8),
@@ -888,6 +908,7 @@ function seed() {
         complaints: '1 обращение (вопрос по сроку набора учеников)',
         contractDoc: 'Договор № 118/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «BI Global Stroy»',
+        milestone: 'СМР',
         budget: 2850000000,
         progress: 82,
         deadline: offset(45),
@@ -908,6 +929,7 @@ function seed() {
         complaints: 'Обращений нет (принято жителями)',
         contractDoc: 'Акт ввода № 23-АВ',
         contractor: 'ТОО «ElectroLine»',
+        milestone: 'Эксплуатация',
         budget: 160000000,
         progress: 100,
         deadline: offset(-5),
@@ -928,6 +950,7 @@ function seed() {
         complaints: '4 жалобы (перенос приема терапевтов)',
         contractDoc: 'Экспертиза № 44-ЭК',
         contractor: 'ТОО «МедСтройКомплекс»',
+        milestone: 'Разработка ПСД',
         budget: 340000000,
         progress: 20,
         deadline: offset(25),
@@ -948,6 +971,7 @@ function seed() {
         complaints: '6 обращений (просьба обустроить скейт-зону)',
         contractDoc: 'Договор № 089/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «Зеленстрой KZ»',
+        milestone: 'СМР',
         budget: 520000000,
         progress: 40,
         deadline: offset(0),
@@ -968,6 +992,7 @@ function seed() {
         complaints: '12 жалоб (пробки на объездной трассе)',
         contractDoc: 'Договор № 204/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «КазДорМост»',
+        milestone: 'СМР',
         budget: 1200000000,
         progress: 55,
         deadline: offset(-15),
@@ -988,6 +1013,7 @@ function seed() {
         complaints: '18 обращений (просьба скорректировать светофорные фазы)',
         contractDoc: 'Договор № РАЗВ-01/2026 (goszakup.gov.kz)',
         contractor: 'ТОО «Мостоотряд-1»',
+        milestone: 'СМР',
         budget: 4200000000,
         progress: 48,
         deadline: offset(120),
@@ -1008,6 +1034,7 @@ function seed() {
         complaints: '8 жалоб (шум от буровых установок в ночное время)',
         contractDoc: 'Договор № МОСТ-77 (goszakup.gov.kz)',
         contractor: 'ТОО «Казахдорстрой»',
+        milestone: 'СМР',
         budget: 5600000000,
         progress: 32,
         deadline: offset(-12),
@@ -1028,6 +1055,7 @@ function seed() {
         complaints: '5 обращений (вопросы по электронной очереди)',
         contractDoc: 'Договор № САД-280 (goszakup.gov.kz)',
         contractor: 'ТОО «Astana Elite Build»',
+        milestone: 'СМР',
         budget: 920000000,
         progress: 78,
         deadline: offset(35),
@@ -1048,6 +1076,7 @@ function seed() {
         complaints: '2 обращения (пожелания по спортивным секциям)',
         contractDoc: 'ТЭО № 12-ФОК',
         contractor: 'ТОО «СпортСтройСервис»',
+        milestone: 'Комплексная экспертиза ПСД',
         budget: 1450000000,
         progress: 15,
         deadline: offset(240),
@@ -1239,6 +1268,7 @@ function updateMapMarkers() {
         <span style="font-size:11px; color:#666;">${o.district} · ${o.category}</span>
         <hr style="margin:6px 0; border:none; border-top:1px solid #eee;">
         <div><strong>Бюджет:</strong> ${formatMoney(o.budget)} (СМР: ${o.progress}%)</div>
+        <div><strong>Этап (майлстоун):</strong> ${o.milestone || '—'}</div>
         <div><strong>Срок сдачи:</strong> ${displayDate(o.deadline)}</div>
         <div><strong>Подрядчик:</strong> ${o.contractor}</div>
         <div style="margin-top:4px;"><strong>Куратор (ПМ):</strong> ${o.owner} <small style="color:#666;">(${o.ownerDept})</small></div>
@@ -1337,7 +1367,7 @@ function renderEVM(id) {
   else if (cpiVal < 1.0) { cpiClass = 'warn'; cpiText = 'Внимание'; }
 
   $('evmTitle').innerHTML = `EVM-анализ: <strong>${o.name}</strong>`;
-  $('evmSubtitle').innerHTML = `${o.district} · Подрядчик: <strong>${o.contractor}</strong>`;
+  $('evmSubtitle').innerHTML = `${o.district} · Этап: <strong>${o.milestone || '—'}</strong> · Подрядчик: <strong>${o.contractor}</strong>`;
 
   const html = `
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--line);">
@@ -1510,11 +1540,12 @@ function render() {
   const q = $('search').value.trim().toLocaleLowerCase('ru');
   const cat = $('filterCategory').value;
   const f = $('filterStatus').value;
+  const ms = $('filterMilestone') ? $('filterMilestone').value : 'all';
 
   const qWords = q.split(/\s+/).filter(Boolean);
   const matchSearch = o => {
     if (!qWords.length) return true;
-    const t = `${o.name} ${o.district} ${o.owner} ${o.contractor} ${o.category}`.toLocaleLowerCase('ru');
+    const t = `${o.name} ${o.district} ${o.owner} ${o.contractor} ${o.category} ${o.milestone || ''}`.toLocaleLowerCase('ru');
     return qWords.every(w => {
       if (t.includes(w)) return true;
       const stem = w.length >= 4 ? w.replace(/[аеиоуыэюяйьъ]+$/, '') : w;
@@ -1525,7 +1556,8 @@ function render() {
   const filtered = state.objects.filter(o => {
     const matchCat = cat === 'all' || o.category === cat;
     const matchStat = f === 'all' || (f === 'late' && isLate(o, today)) || o.status === f;
-    return matchCat && matchStat && matchSearch(o);
+    const matchMs = ms === 'all' || o.milestone === ms;
+    return matchCat && matchStat && matchMs && matchSearch(o);
   });
 
   // Calculate statistics
@@ -1550,6 +1582,7 @@ function render() {
       <tr data-id="${o.id}" class="${o.id === selectedObjectId ? 'selected' : ''}" onclick="selectObject(${o.id})">
         <td>
           <strong style="color:var(--navy); font-size:13.5px;">${o.name}</strong>
+          <div style="margin-top:3px;"><span class="pill" style="background:#e8f0fb;color:#1f5c99;border:1px solid #c3d8ef;">Этап: ${o.milestone || '—'}</span></div>
           <div style="font-size:11px; color:var(--muted); margin-top:2px;">
             ${o.district} · Подрядчик: ${o.contractor} · <strong>ПМ:</strong> ${o.owner}
             <a href="https://wa.me/${o.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" onclick="event.stopPropagation()" style="color:#25d366; text-decoration:none; font-weight:700; margin-left:4px;">WA</a>
@@ -1971,6 +2004,7 @@ function generateBriefing() {
 $('search').oninput = render;
 $('filterCategory').onchange = render;
 $('filterStatus').onchange = render;
+$('filterMilestone').onchange = render;
 
 $('export').onclick = () => {
   const data = JSON.stringify({ ...state, exportedAt: new Date().toISOString() }, null, 2);
