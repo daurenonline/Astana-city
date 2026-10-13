@@ -669,7 +669,19 @@
     </section>
   </div>
 
-  <!-- BOTTOM GRID -->
+  <!-- OBJECT ANALYSIS (EVM + этапы + фото) — full width -->
+  <section class="panel" id="evmSection" style="margin-top:18px;">
+    <div class="panel-header">
+      <div>
+        <h2 class="panel-title" id="evmTitle">Анализ EVM (Метод освоенного объёма)</h2>
+        <span style="font-size:11px; color:var(--muted);" id="evmSubtitle">Выберите объект в реестре для расчета индексов SPI, CPI и прогноза</span>
+      </div>
+      <button id="resetBtn" style="padding:4px 8px; font-size:11px;">Сброс данных</button>
+    </div>
+    <div id="evmBody"></div>
+  </section>
+
+  <!-- OBJECT RECORDS: AUDIT + RISKS -->
   <div class="bottom-grid">
     <section class="panel">
       <div class="panel-header">
@@ -685,20 +697,6 @@
       <ul class="timeline" id="history"></ul>
     </section>
 
-    <section class="panel" id="evmSection">
-      <div class="panel-header">
-        <div>
-          <h2 class="panel-title" id="evmTitle">Анализ EVM (Метод освоенного объёма)</h2>
-          <span style="font-size:11px; color:var(--muted);" id="evmSubtitle">Выберите объект в реестре для расчета индексов SPI, CPI и прогноза</span>
-        </div>
-        <button id="resetBtn" style="padding:4px 8px; font-size:11px;">Сброс данных</button>
-      </div>
-      <div id="evmBody"></div>
-    </section>
-  </div>
-
-  <!-- RISK REGISTER & ESCALATION -->
-  <div class="full-row">
     <section class="panel">
       <div class="panel-header">
         <div>
@@ -725,7 +723,10 @@
         </table>
       </div>
     </section>
+  </div>
 
+  <!-- ALERTS + DOCUMENTS -->
+  <div class="full-row">
     <section class="panel">
       <div class="panel-header">
         <div>
@@ -735,10 +736,7 @@
       </div>
       <div id="alertsBody"></div>
     </section>
-  </div>
 
-  <!-- DOCUMENTS (CDE) & RFI/SUBMITTALS -->
-  <div class="full-row">
     <section class="panel">
       <div class="panel-header">
         <div>
@@ -767,7 +765,10 @@
         Статусы по ISO 19650: <strong>Черновик</strong> (Work in progress) → <strong>На согласовании</strong> (Shared) → <strong>Утверждён</strong> (Published) → <strong>Архив</strong>.
       </div>
     </section>
+  </div>
 
+  <!-- QUESTIONS & APPROVALS (full width) -->
+  <div class="full-row" style="grid-template-columns:1fr;">
     <section class="panel">
       <div class="panel-header">
         <div>
