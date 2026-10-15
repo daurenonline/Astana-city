@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>InfraMap — Pitch Deck GTON 2026</title>
+  <meta name="robots" content="noindex, nofollow">
   <style>
     :root {
       --bg: #0b1a28;
@@ -202,7 +203,9 @@
       color: #eaf1f7;
       font-weight: 600;
     }
+    .slide::after { content: 'ДЕМО · InfraMap'; position: absolute; right: 18px; bottom: 12px; font-size: 10px; letter-spacing: 3px; color: rgba(255,255,255,.15); pointer-events: none; }
     @media print {
+      .slide::after { color: rgba(0,0,0,.12); }
       body { background: #fff; color: #111; padding: 0; }
       .print-bar { display: none; }
       .slide {

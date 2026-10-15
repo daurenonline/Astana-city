@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>InfraMap — Единая карта инфраструктурных объектов</title>
+  <meta name="robots" content="noindex, nofollow">
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#0e2538">
@@ -915,6 +916,8 @@
     <div style="font-size:10.5px; color:var(--muted); margin-top:6px;">Демонстрационное изображение (не реальный объект). В пилоте — реальные фото с геометками, загруженные из E-Qurylys / мобильного обхода.</div>
   </div>
 </div>
+
+<div id="demoMark" style="position:fixed; right:10px; bottom:10px; z-index:1500; background:rgba(14,37,56,.78); color:#eaf1f7; font-size:10.5px; padding:4px 10px; border-radius:14px; pointer-events:none; letter-spacing:.3px;">ДЕМО · InfraMap · только для ознакомления</div>
 
 <script>
 'use strict';
@@ -2665,6 +2668,23 @@ function resetServiceWorkerCaches() {
     caches.keys().then((ks) => ks.forEach((k) => caches.delete(k))).catch(() => {});
   }
 }
+
+// ===== Приватная аналитика (включить: заполнить provider + id) =====
+// provider: 'plausible' (id = домен, напр. 'daurenonline.github.io') или 'umami' (id = website-id)
+const ANALYTICS = { provider: '', id: '' };
+(function initAnalytics() {
+  if (!ANALYTICS.provider || !ANALYTICS.id) return;
+  const s = document.createElement('script');
+  s.defer = true;
+  if (ANALYTICS.provider === 'plausible') {
+    s.setAttribute('data-domain', ANALYTICS.id);
+    s.src = 'https://plausible.io/js/script.js';
+  } else if (ANALYTICS.provider === 'umami') {
+    s.setAttribute('data-website-id', ANALYTICS.id);
+    s.src = 'https://cloud.umami.is/script.js';
+  } else { return; }
+  document.head.appendChild(s);
+})();
 
 document.addEventListener('DOMContentLoaded', () => {
   initMap();
